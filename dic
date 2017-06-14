@@ -33,8 +33,8 @@ def num?(num)
 end
 
 def show_and_get_file(files)
-  files = files.size == 0 ? all_files : files
-  files_contains_keywords(files).each_with_index do |file, i|
+  files = files.size == 0 ? all_files : files_contains_keywords(files)
+  files.each_with_index do |file, i|
     puts "#{i} #{file}"
   end
   print "? "
@@ -59,13 +59,15 @@ when "-h", "--help"
   puts "#{APP_NAME} [word]    ... edit article"
   puts "#{APP_NAME} -d [word] ... remove article"
   puts
-when "-d"  
+when "-d" 
+  term = show_and_get_file(all_files)
+  print "okay to delete [#{term}] ? [Y/n]: "
+  system("rm #{DOC_SHELF}/#{term}.md") if $stdin.gets.chomp.downcase == "y"
 else
-  abort "\nyou need argument\n\n" unless key_words.first
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
   file_name = "#{DOC_SHELF}/#{key_words.first}.md"
   if options.include?("-n") || File.exist?(file_name)
-   edit(file_name)
+    edit(file_name)
   else
     edit("#{DOC_SHELF}/#{show_and_get_file(all_files)}.md")
   end  
