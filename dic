@@ -181,8 +181,12 @@ def set_image
   file = files.first
   ARGV.delete(file)
   extension = file.split(".").last
+  system "mkdir -p #{DOC_SHELF}/images"
+  system "mkdir -p #{DOC_SHELF_P}/images"
   target    = "#{DOC_SHELF_P}/images/#{name}.#{extension}".gsub("//","/")
+  target2   = "#{DOC_SHELF}/images/#{name}.#{extension}".gsub("//","/")
   system "cp #{file} #{target}"
+  system "cp #{target} #{target2}"
   markdown = "<img src=\"#{target}\" width=152>"
   system("echo \"#{markdown}\" | pbcopy")
   puts "\n#{markdown}\n\n"
