@@ -65,7 +65,7 @@ end
 
 def show_and_get_file(files, key_words, option=nil)
   files = get_files(files, key_words)
-  return key_words.first if files.size == 0
+  return key_words.join("_") if files.size == 0
   puts
   files.each_with_index do |file, i|
     puts "[#{i}] #{file}"
@@ -76,7 +76,7 @@ def show_and_get_file(files, key_words, option=nil)
     option = $stdin.gets.chomp
   end  
   if num?(option)
-      files[option.to_i] 
+    files[option.to_i] 
   elsif option == "q"
     abort
   else
@@ -142,6 +142,7 @@ when "-h", "--help"
   puts "#{APP_NAME} -n [word] ... make new article"
   puts "#{APP_NAME} [word]    ... edit article"
   puts "#{APP_NAME} -d [word] ... remove article"
+  puts "#{APP_NAME} -i [image file path] ... add image rsc and markdown to the clipboard"
   puts
 when "-d" 
   term = show_and_get_file(all_files, key_words)
@@ -151,7 +152,8 @@ when "-i" # image
   set_image
 else
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
-  file_name = "#{DOC_SHELF}/#{key_words.first}.md"
+  file_name = "#{DOC_SHELF}/#{key_words.join('_')}.md"
+  puts file_name
   if options.include?("-n") || File.exist?(file_name)
     edit(file_name)
   else
