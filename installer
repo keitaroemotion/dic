@@ -1,1 +1,2 @@
+brew cask install macdown
 cp dic /usr/local/bin/
