@@ -35,6 +35,22 @@ To delete the article,
 $ dic -d
 ```
 
+# URL Configuration
+
+Once you pushed your **wiki repository** in your **github repository**, then you have to edit the config.
+
+```
+$ cp etc/config.sample etc/config
+$ vim etc/config
+```
+
+Then install it again:
+
+```
+$ ./installer
+```
+
+
 # Donation
 
 Please check out "keita roimo" on iTunes, Amazon, or Spotify.

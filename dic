@@ -3,15 +3,26 @@
 require "colorize"
 
 APP_NAME   = "dic"
-DOC_SHELF  = "/usr/local/etc/#{APP_NAME}/"
+DOC_SHELF  = "/usr/local/etc/#{APP_NAME}"
 
 args = ARGV
 
+def config
+  confs = File.open("#{DOC_SHELF}/.condig", "r").map do |line|
+    line.split(" ")
+  end.flat
+  Hash[*confs]
+end
+
 def edit(file_name)
-   puts "\n#{File.basename(file_name).gsub('.md','').green}\n\n"
-   print "[Enter: open, v: vim, l: links c: cat /: search] "
+   name = File.basename(file_name).gsub('.md','')
+   puts "\n#{name.green}\n\n"
+   print "[Enter: open, v: vim, l: links c: cat /: search w: web] "
    opt = $stdin.gets.chomp
    case opt
+   when "w"
+     url = config["url"].gsub("$", name)
+     system "open #{url}"
    when "c"
      system "cat #{file_name}"
    when "v"
