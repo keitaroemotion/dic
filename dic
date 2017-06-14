@@ -20,10 +20,16 @@ def edit(file_name)
      links file_name
    when "q"  
      abort
-   when "/"  
-    print "[term:] "
-    edit("#{DOC_SHELF}/#{show_and_get_file(all_files, $stdin.gets.chomp)}.md")
    else
+     if opt.start_with?("/")
+      opt = opt.gsub("/", "")
+      unless opt
+        print "[term:] "
+        opt = $stdin.gets.chomp
+      end  
+      opt = opt.split(" ")
+      edit("#{DOC_SHELF}/#{show_and_get_file(all_files, opt)}.md")
+     end  
      system "macdown #{file_name}"
    end
    edit file_name
@@ -41,7 +47,7 @@ def options
   ARGV.select { |arg| option?(arg) }
 end
 
-def files_contains_keywords(files)
+def files_contains_keywords(files, key_words)
   files.select do |file|
     key_words.select{|kw| file.include?(kw)}.size == key_words.size
   end
@@ -51,8 +57,14 @@ def num?(num)
   num =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
 end
 
-def show_and_get_file(files, option=nil)
-  files = (files.size == 0 ? all_files : files_contains_keywords(files)).uniq.select{|x| x != "images"}
+def get_files(files, key_words)
+  (files.size == 0 ? all_files : files_contains_keywords(files, key_words))
+    .uniq
+    .select{|x| x != "images"}
+end
+
+def show_and_get_file(files, key_words, option=nil)
+  files = get_files(files, key_words)
   return key_words.first if files.size == 0
   puts
   files.each_with_index do |file, i|
@@ -60,7 +72,7 @@ def show_and_get_file(files, option=nil)
   end
   puts
   unless option
-    print "[choose one:] "
+    print "[(index|keywords)] "
     option = $stdin.gets.chomp
   end  
   if num?(option)
@@ -68,7 +80,7 @@ def show_and_get_file(files, option=nil)
   elsif option == "q"
     abort
   else
-    show_and_get_file(files.select{|file| file.include?(option)})
+    show_and_get_file(files, option.split(" "))
   end
 end
 
@@ -132,7 +144,7 @@ when "-h", "--help"
   puts "#{APP_NAME} -d [word] ... remove article"
   puts
 when "-d" 
-  term = show_and_get_file(all_files)
+  term = show_and_get_file(all_files, key_words)
   print "okay to delete [#{term}] ? [Y/n]: "
   system("rm #{DOC_SHELF}/#{term}.md") if $stdin.gets.chomp.downcase == "y"
 when "-i" # image
@@ -143,7 +155,7 @@ else
   if options.include?("-n") || File.exist?(file_name)
     edit(file_name)
   else
-    edit("#{DOC_SHELF}/#{show_and_get_file(all_files)}.md")
+    edit("#{DOC_SHELF}/#{show_and_get_file(all_files, key_words)}.md")
   end  
 end
 
