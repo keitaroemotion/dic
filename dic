@@ -35,9 +35,9 @@ end
 def show_and_get_file(files)
   files = files.size == 0 ? all_files : files_contains_keywords(files)
   files.each_with_index do |file, i|
-    puts "#{i} #{file}"
+    puts "[#{i}] #{file}"
   end
-  print "? "
+  print "[choose one:] "
   option = $stdin.gets.chomp
   if num?(option)
     files[option.to_i] 
