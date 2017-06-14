@@ -2,15 +2,44 @@
 
 require "colorize"
 
-APP_NAME   = "dic"
-DOC_SHELF  = "/usr/local/etc/#{APP_NAME}"
+APP_NAME     = "dic"
+ROOT         = "/usr/local/etc/#{APP_NAME}"
+DOC_SHELF    = "/usr/local/etc/#{APP_NAME}/raw"
+DOC_SHELF_P  = "/usr/local/etc/#{APP_NAME}/pages"
 
 args = ARGV
 
+def convert(file)
+  lines = File.open(file, "r").map do |line|
+    if is_link?(line) && !line.include?("http")
+      tokens = line.split("](")
+      tokens[0].chomp + "](" + tokens[1..-1].join.gsub(ROOT, "")
+    elsif image_link_2?(line)   
+      url = File.dirname(config["url"])
+      puts url.yellow
+      line.gsub(ROOT, "\"#{url}").split(" ").map do |t|
+        unless /(.png|.jpg|.gif|.JPG)/.match(t).nil?
+          t + "\""
+        else
+          t
+        end
+      end.join(" ")
+    else  
+      line
+    end
+  end
+  lines.compact.each do |line|
+  end
+  f = File.open(File.join(DOC_SHELF_P, File.basename(file)), "w")
+  lines.compact.each do |line|
+    f.puts line
+  end
+end
+
 def config
-  confs = File.open("#{DOC_SHELF}/.condig", "r").map do |line|
+  confs = File.open("#{ROOT}/.config", "r").map do |line|
     line.split(" ")
-  end.flat
+  end.flatten
   Hash[*confs]
 end
 
@@ -102,9 +131,21 @@ rescue
   abort "link parse failure: #{link}"
 end
 
+def image_link_2?(line)
+  line.include?("<img src=")
+end
+
+def image_link?(line)
+  !/\[*\]/.match(line).nil? && line.strip.start_with?("!")
+end
+
+def is_link?(line)
+  !/\[*\]/.match(line).nil? && !line.strip.start_with?("!")
+end
+
 def links(file)
   links = File.open(file, "r").select do |line|
-    !/\[*\]/.match(line).nil? && !line.strip.start_with?("!")
+    is_link? line
   end
   puts
   links.each_with_index do |link, i|
@@ -140,7 +181,7 @@ def set_image
   file = files.first
   ARGV.delete(file)
   extension = file.split(".").last
-  target    = "#{DOC_SHELF}/images/#{name}.#{extension}".gsub("//","/")
+  target    = "#{DOC_SHELF_P}/images/#{name}.#{extension}".gsub("//","/")
   system "cp #{file} #{target}"
   markdown = "<img src=\"#{target}\" width=152>"
   system("echo \"#{markdown}\" | pbcopy")
@@ -153,6 +194,7 @@ when "-h", "--help"
   puts "#{APP_NAME} -n [word] ... make new article"
   puts "#{APP_NAME} [word]    ... edit article"
   puts "#{APP_NAME} -d [word] ... remove article"
+  puts "#{APP_NAME} -c        ... convert"
   puts "#{APP_NAME} -i [image file path] ... add image rsc and markdown to the clipboard"
   puts
 when "-d" 
@@ -161,6 +203,10 @@ when "-d"
   system("rm #{DOC_SHELF}/#{term}.md") if $stdin.gets.chomp.downcase == "y"
 when "-i" # image
   set_image
+when "-c"  
+  Dir["#{DOC_SHELF}/*"].each do |file|
+    convert file
+  end
 else
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
   file_name = "#{DOC_SHELF}/#{key_words.join('_')}.md"
