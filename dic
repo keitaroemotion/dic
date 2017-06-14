@@ -20,6 +20,7 @@ end
 def edit(file_name)
   system "touch #{file_name}"
   system "macdown #{file_name}"
+  links file_name
 end
 
 def files_contains_keywords(files)
@@ -48,6 +49,37 @@ def show_and_get_file(files, option=nil)
     abort
   else
     show_and_get_file(files.select{|file| file.include?(option)})
+  end
+end
+
+def parse_link(link)
+  link = link.split("](")[1].gsub(')','')
+  link.split(" ").select{|x| x.start_with?("http") || x.start_with?("/")}.first
+rescue
+  abort "link parse failure: #{link}"
+end
+
+def links(file)
+  links = File.open(file, "r").select do |line|
+    !/\[*\]/.match(line).nil? && !line.strip.start_with?("!")
+  end
+  links.each_with_index do |link, i|
+    puts "[#{i}] #{link.split("](").first.gsub('[','')}"
+  end
+  print "[which? none:q] "
+  opt = $stdin.gets.chomp.downcase
+  abort if opt == "q"
+
+  link = parse_link(links[opt.to_i])
+  if link.include?("http")
+    system "open #{link}"
+  else
+    target = "#{DOC_SHELF}/#{link}.md"
+    if File.exist?(target)
+      edit target
+    else
+      puts "\ninvalid link: #{target}\n\n"
+    end
   end
 end
 
