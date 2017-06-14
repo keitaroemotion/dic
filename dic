@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+
+APP_NAME   = "dic"
+DOC_SHELF  = "/usr/local/etc/#{APP_NAME}/"
+
+args = ARGV
+
+def option?(arg)
+  arg.start_with?("-")
+end
+
+def key_words
+  ARGV.select { |arg| !option?(arg) }
+end
+
+def options
+  ARGV.select { |arg| option?(arg) }
+end
+
+def edit(file_name)
+  system "touch #{file_name}"
+  system "macdown #{file_name}"
+end
+
+def files_contains_keywords(files)
+  files.select do |file|
+    key_words.select{|kw| file.include?(kw)}.size == key_words.size
+  end
+end
+
+def num?(num)
+  num =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
+end
+
+def show_and_get_file(files)
+  files = files.size == 0 ? all_files : files
+  files_contains_keywords(files).each_with_index do |file, i|
+    puts "#{i} #{file}"
+  end
+  print "? "
+  option = $stdin.gets.chomp
+  if num?(option)
+    files[option.to_i] 
+  elsif option == "q"
+    abort
+  else
+    show_and_get_file(files.select{|file| file.include?(option)})
+  end
+end
+
+def all_files
+  Dir["#{DOC_SHELF}/*"].map{|file| File.basename(file).gsub(".md","")}
+end
+
+case options.first
+when "-h", "--help"
+  puts
+  puts "#{APP_NAME} -n [word] ... make new article"
+  puts "#{APP_NAME} [word]    ... edit article"
+  puts "#{APP_NAME} -d [word] ... remove article"
+  puts
+when "-d"  
+else
+  abort "\nyou need argument\n\n" unless key_words.first
+  system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
+  file_name = "#{DOC_SHELF}/#{key_words.first}.md"
+  if options.include?("-n") || File.exist?(file_name)
+   edit(file_name)
+  else
+    edit("#{DOC_SHELF}/#{show_and_get_file(all_files)}.md")
+  end  
+end
+
+
+
+
