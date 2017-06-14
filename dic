@@ -9,26 +9,29 @@ DOC_SHELF_P  = "/usr/local/etc/#{APP_NAME}/pages"
 
 args = ARGV
 
+#
+# TODO: refactor this boilerplate
+#
 def convert(file)
   lines = File.open(file, "r").map do |line|
-    if is_link?(line) && !line.include?("http")
+    if (image_link?(line) && !line.include?("http")) 
       tokens = line.split("](")
-      tokens[0].chomp + "](" + tokens[1..-1].join.gsub(ROOT, "")
+      line = "!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(ROOT, "")
+      line.gsub(DOC_SHELF + "/", "").gsub("!!","!")
     elsif image_link_2?(line)   
-      url = File.dirname(config["url"])
-      puts url.yellow
-      line.gsub(ROOT, "\"#{url}").split(" ").map do |t|
-        unless /(.png|.jpg|.gif|.JPG)/.match(t).nil?
-          t + "\""
-        else
-          t
-        end
-      end.join(" ")
+      url = File.dirname(config["url"]) + "/"
+      litok = line
+        .gsub(url, "")
+        .gsub("<img src=", "![](")
+        .split(" ")
+      cont = litok[1].gsub("=", "=\"").gsub(">", "") + "\""
+      cont = cont ? "{:#{cont}}" : ""
+      line = litok[0] + ")" + cont
+      line.gsub(DOC_SHELF + "/", "")
     else  
+      puts line.green if line.include?("ccf")
       line
     end
-  end
-  lines.compact.each do |line|
   end
   f = File.open(File.join(DOC_SHELF_P, File.basename(file)), "w")
   lines.compact.each do |line|
@@ -209,7 +212,7 @@ when "-i" # image
   set_image
 when "-c"  
   Dir["#{DOC_SHELF}/*"].each do |file|
-    convert file
+    convert(file) if File.file?(file)
   end
 else
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
