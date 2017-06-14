@@ -5,6 +5,27 @@ DOC_SHELF  = "/usr/local/etc/#{APP_NAME}/"
 
 args = ARGV
 
+def edit(file_name)
+   print "[Enter: open, v: vim, l: links c: cat /: search] "
+   opt = $stdin.gets.chomp
+   case opt
+   when "c"
+     system "cat #{file_name}"
+   when "v"
+     system "vim #{file_name}"
+   when "l"
+     links file_name
+   when "q"  
+     abort
+   when "/"  
+    print "[term:] "
+    edit("#{DOC_SHELF}/#{show_and_get_file(all_files, $stdin.gets.chomp)}.md")
+   else
+     system "macdown #{file_name}"
+   end
+   edit file_name
+end
+
 def option?(arg)
   arg.start_with?("-")
 end
@@ -15,12 +36,6 @@ end
 
 def options
   ARGV.select { |arg| option?(arg) }
-end
-
-def edit(file_name)
-  system "touch #{file_name}"
-  system "macdown #{file_name}"
-  links file_name
 end
 
 def files_contains_keywords(files)
@@ -34,17 +49,18 @@ def num?(num)
 end
 
 def show_and_get_file(files, option=nil)
-  files = files.size == 0 ? all_files : files_contains_keywords(files)
+  files = (files.size == 0 ? all_files : files_contains_keywords(files)).uniq.select{|x| x != "images"}
   return key_words.first if files.size == 0
   files.each_with_index do |file, i|
     puts "[#{i}] #{file}"
   end
+  puts
   unless option
     print "[choose one:] "
     option = $stdin.gets.chomp
   end  
   if num?(option)
-    files[option.to_i] 
+      files[option.to_i] 
   elsif option == "q"
     abort
   else
