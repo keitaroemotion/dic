@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
 
+require "colorize"
+
 APP_NAME   = "dic"
 DOC_SHELF  = "/usr/local/etc/#{APP_NAME}/"
 
 args = ARGV
 
 def edit(file_name)
+   puts "\n#{File.basename(file_name).gsub('.md','').green}\n\n"
    print "[Enter: open, v: vim, l: links c: cat /: search] "
    opt = $stdin.gets.chomp
    case opt
@@ -51,6 +54,7 @@ end
 def show_and_get_file(files, option=nil)
   files = (files.size == 0 ? all_files : files_contains_keywords(files)).uniq.select{|x| x != "images"}
   return key_words.first if files.size == 0
+  puts
   files.each_with_index do |file, i|
     puts "[#{i}] #{file}"
   end
@@ -79,6 +83,7 @@ def links(file)
   links = File.open(file, "r").select do |line|
     !/\[*\]/.match(line).nil? && !line.strip.start_with?("!")
   end
+  puts
   links.each_with_index do |link, i|
     puts "[#{i}] #{link.split("](").first.gsub('[','')}"
   end
