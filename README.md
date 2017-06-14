@@ -20,6 +20,8 @@ To edit the already existing page,
 $ dic [word]
 ```
 
+* To note, with this option if there are no matches to the word, it automatically generates the new file instead.
+
 Help option:
 
 ```

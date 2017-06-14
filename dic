@@ -34,6 +34,7 @@ end
 
 def show_and_get_file(files)
   files = files.size == 0 ? all_files : files_contains_keywords(files)
+  return key_words.first if files.size == 0
   files.each_with_index do |file, i|
     puts "[#{i}] #{file}"
   end
