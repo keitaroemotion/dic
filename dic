@@ -109,13 +109,14 @@ end
 def show_and_get_file(files, key_words, option=nil)
   files = get_files(files, key_words)
   return key_words.join("_") if files.size == 0
+  return files.first if files.size == 1
   puts
   files.each_with_index do |file, i|
     puts "[#{i}] #{file}"
   end
   puts
   unless option
-    print "[(index|keywords)] "
+    print "[index|keywords] "
     option = $stdin.gets.chomp
   end  
   if num?(option)
