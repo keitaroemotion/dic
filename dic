@@ -195,7 +195,16 @@ def set_image
   puts "\n#{markdown}\n\n"
 end  
 
+def update_wiki
+  system "cd #{ROOT}"
+  system "git add ."
+  system "git commit -m \"page updated\""
+  system "git push origin master"
+end
+
 case options.first
+when "-u"
+  update_wiki
 when "-h", "--help"
   puts
   puts "#{APP_NAME} -n [word] ... make new article"
