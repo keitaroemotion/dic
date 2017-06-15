@@ -196,7 +196,7 @@ def set_image
 end  
 
 def update_wiki
-  system "cd #{ROOT};git add .;git commit -m \"page updated\";git push origin master"
+  system "dic -c;cd #{ROOT};pwd;git add #{ROOT};pwd;git commit -m \"page updated\";pwd;git push origin master"
 end
 
 case options.first
