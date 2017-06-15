@@ -196,10 +196,7 @@ def set_image
 end  
 
 def update_wiki
-  system "cd #{ROOT}"
-  system "git add ."
-  system "git commit -m \"page updated\""
-  system "git push origin master"
+  system "cd #{ROOT};git add .;git commit -m \"page updated\";git push origin master"
 end
 
 case options.first
@@ -211,6 +208,7 @@ when "-h", "--help"
   puts "#{APP_NAME} [word]    ... edit article"
   puts "#{APP_NAME} -d [word] ... remove article"
   puts "#{APP_NAME} -c        ... convert"
+  puts "#{APP_NAME} -u        ... update web page"
   puts "#{APP_NAME} -i [image file path] ... add image rsc and markdown to the clipboard"
   puts
 when "-d" 
