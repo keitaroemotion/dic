@@ -176,21 +176,48 @@ def all_files
   Dir["#{DOC_SHELF}/*"].map{|file| File.basename(file).gsub(".md","")}
 end
 
+def mkdir_docshelfs
+  system "mkdir -p #{DOC_SHELF}/images"
+  system "mkdir -p #{DOC_SHELF_P}/images"
+end
+
+def image_path(root, name, extension)
+  "#{root}/images/#{name}.#{extension}".gsub("//","/")
+end
+
+def copy(from, to)
+  "cp #{from} #{to}"
+end
+
+def extract_files(files)
+  files.select{|file| File.exist?(file)}
+end
+
+def stop(message, cond)
+  abort message if cond
+end
+
+def inter(message)
+  print message
+  $stdin.gets.chomp
+end
+
 def set_image
-  print "[name:] "  
-  name = $stdin.gets.chomp
-  abort "you need name." unless name
-  files = key_words.select{|kw| File.exist?(kw)}
-  abort "you need image file." if files.size == 0
+  name = inter "[name:] "  
+  stop "you need name", !name 
+  files = extract_files(key_words)
+  stop "you need image file.", files.size == 0
   file = files.first
   ARGV.delete(file)
   extension = file.split(".").last
-  system "mkdir -p #{DOC_SHELF}/images"
-  system "mkdir -p #{DOC_SHELF_P}/images"
-  target    = "#{DOC_SHELF_P}/images/#{name}.#{extension}".gsub("//","/")
-  target2   = "#{DOC_SHELF}/images/#{name}.#{extension}".gsub("//","/")
-  system "cp #{file} #{target}"
-  system "cp #{target} #{target2}"
+
+  mkdir_docshelfs 
+
+  target  = image_path(DOC_SHELF_P, name, extension)
+
+  copy file, target
+  copy target, image_path(DOC_SHELF, name, extension)
+
   markdown = "<img src=\"#{target}\" width=152>"
   system("echo \"#{markdown}\" | pbcopy")
   puts "\n#{markdown}\n\n"
