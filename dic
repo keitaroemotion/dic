@@ -35,8 +35,12 @@ def convert(file)
   end
   f = File.open(File.join(DOC_SHELF_P, File.basename(file)), "w")
   lines.compact.each do |line|
+#    puts   line.green if line.include?(DOC_SHELF)
+    line = line.gsub(DOC_SHELF + "/", "")
+#    puts line.red if line.include?(".md")
     f.puts line
   end
+  f.close
 end
 
 def config
@@ -224,7 +228,14 @@ def set_image
 end  
 
 def update_wiki
-  system "dic -c;cd #{ROOT};pwd;git add #{ROOT};pwd;git commit -m \"page updated\";pwd;git push origin master"
+  do_convert
+  system "cd #{ROOT};git add #{ROOT};git commit -m \"page updated\";git push origin master"
+end
+
+def do_convert
+  Dir["#{DOC_SHELF}/*"].each do |file|
+    convert(file) if File.file?(file)
+  end
 end
 
 case options.first
@@ -246,9 +257,7 @@ when "-d"
 when "-i" # image
   set_image
 when "-c"  
-  Dir["#{DOC_SHELF}/*"].each do |file|
-    convert(file) if File.file?(file)
-  end
+  do_convert
 else
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
   file_name = "#{DOC_SHELF}/#{key_words.join('_')}.md"
