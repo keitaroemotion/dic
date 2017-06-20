@@ -35,9 +35,7 @@ def convert(file)
   end
   f = File.open(File.join(DOC_SHELF_P, File.basename(file)), "w")
   lines.compact.each do |line|
-#    puts   line.green if line.include?(DOC_SHELF)
     line = line.gsub(DOC_SHELF + "/", "")
-#    puts line.red if line.include?(".md")
     f.puts line
   end
   f.close
@@ -53,9 +51,13 @@ end
 def edit(file_name)
    name = File.basename(file_name).gsub('.md','')
    puts "\n#{name.green}\n\n"
-   print "[Enter: open, v: vim, l: links c: cat /: search w: web] "
+   print "[Enter: open, v: vim, l: links c: cat /: search w: web u:update] "
    opt = $stdin.gets.chomp
    case opt
+   when "u"
+     update_wiki
+     url = config["url"].gsub("$", name)
+     system "open #{url}"
    when "w"
      url = config["url"].gsub("$", name)
      system "open #{url}"
