@@ -222,6 +222,11 @@ def set_image
 
   target  = image_path(DOC_SHELF_P, name, extension)
 
+  if File.exist!(target)
+    target = "#{Time.now.to_f.to_i}_" + target
+    name   = "#{Time.now.to_f.to_i}_" + name
+  end
+
   copy file, target
   copy target, image_path(DOC_SHELF, name, extension)
 
