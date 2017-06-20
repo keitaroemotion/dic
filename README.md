@@ -34,6 +34,14 @@ To delete the article,
 $ vol -d
 ```
 
+To add image and copy the markup link to your clipboard
+
+```
+$ vol -i [image.jpg]
+```
+
+then if you can paste it onto any .md page, image will be embedded.
+
 To update your change in wiki:
 ```
 $ vol -u
