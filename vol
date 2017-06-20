@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "colorize"
+require "/usr/local/lib/vol/util.rb"
 
 APP_NAME     = "vol"
 ROOT         = "/usr/local/etc/#{APP_NAME}"
@@ -92,16 +93,12 @@ def edit(file_name)
    edit file_name
 end
 
-def option?(arg)
-  arg.start_with?("-")
-end
-
 def key_words
-  ARGV.select { |arg| !option?(arg) }
+  ARGV.select { |arg| !Lib::Util::option?(arg) }
 end
 
 def options
-  ARGV.select { |arg| option?(arg) }
+  ARGV.select { |arg| Lib::Util::option?(arg) }
 end
 
 def match?(text, kw)
