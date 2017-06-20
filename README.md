@@ -1,6 +1,6 @@
-# dic
+# voltaire
 
-dic is the tool to allow you to edit the wiki repository.
+voltaire is the tool to allow you to edit the wiki repository.
 
 # Installation
 ```
@@ -11,13 +11,13 @@ dic is the tool to allow you to edit the wiki repository.
 The following command can help you create the new page.
 
 ```
-$ dic -n [word]
+$ vol -n [word]
 ```
 
 To edit the already existing page,
 
 ```
-$ dic [word]
+$ vol [word]
 ```
 
 * To note, with this option if there are no matches to the word, it automatically generates the new file instead.
@@ -25,18 +25,18 @@ $ dic [word]
 Help option:
 
 ```
-$ dic -h
+$ vol -h
 ```
 
 To delete the article,
 
 ```
-$ dic -d
+$ vol -d
 ```
 
 To update your change in wiki:
 ```
-$ dic -u
+$ vol -u
 ```
 
 # URL Configuration

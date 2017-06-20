@@ -2,7 +2,7 @@
 
 require "colorize"
 
-APP_NAME     = "dic"
+APP_NAME     = "vol"
 ROOT         = "/usr/local/etc/#{APP_NAME}"
 DOC_SHELF    = "/usr/local/etc/#{APP_NAME}/raw"
 DOC_SHELF_P  = "/usr/local/etc/#{APP_NAME}/pages"

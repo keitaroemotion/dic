@@ -1,4 +1,4 @@
 gem install colorize
 brew cask install macdown
-cp dic /usr/local/bin/
-cp etc/config /usr/local/etc/dic/.config
+cp vol /usr/local/bin/
+cp etc/config /usr/local/etc/vol/.config
