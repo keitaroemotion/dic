@@ -51,13 +51,19 @@ end
 def edit(file_name)
    name = File.basename(file_name).gsub('.md','')
    puts "\n#{name.green}\n\n"
-   print "[Enter: open, v: vim, l: links c: cat /: search w: web u:update] "
+   print "[m: markup, v: vim, l: links]\n" + 
+         "[c: cat /: search]\n" +
+         "[w: web u:update + open uu: update]\n" +
+         "[which?] "
+         
    opt = $stdin.gets.chomp
    case opt
    when "u"
      update_wiki
      url = config["url"].gsub("$", name)
      system "open #{url}"
+   when "uu"  
+     update_wiki
    when "w"
      url = config["url"].gsub("$", name)
      system "open #{url}"
@@ -69,6 +75,8 @@ def edit(file_name)
      links file_name
    when "q"  
      abort
+   when "m"  
+     system "macdown #{file_name}"
    else
      if opt.start_with?("/")
       opt = opt.gsub("/", "")
@@ -78,8 +86,8 @@ def edit(file_name)
       end  
       opt = opt.split(" ")
       edit("#{DOC_SHELF}/#{show_and_get_file(all_files, opt)}.md")
+       system "macdown #{file_name}"
      end  
-     system "macdown #{file_name}"
    end
    edit file_name
 end
