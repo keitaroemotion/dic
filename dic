@@ -24,7 +24,7 @@ def convert(file)
         .gsub(url, "")
         .gsub("<img src=", "![](")
         .split(" ")
-      cont = litok[1].gsub("=", "=\"").gsub(">", "") + "\""
+      cont = (litok[1] || "").gsub("=", "=\"").gsub(">", "") + "\""
       cont = cont ? "{:#{cont}}" : ""
       line = litok[0] + ")" + cont
       line.gsub(DOC_SHELF + "/", "")
@@ -166,6 +166,7 @@ def links(file)
   abort if opt == "q"
 
   link = parse_link(links[opt.to_i])
+  link ||= links[opt.to_i]
   if link.include?("http")
     system "open #{link}"
   else
@@ -192,7 +193,7 @@ def image_path(root, name, extension)
 end
 
 def copy(from, to)
-  "cp #{from} #{to}"
+  system "cp #{from} #{to}"
 end
 
 def extract_files(files)
@@ -224,7 +225,8 @@ def set_image
   copy file, target
   copy target, image_path(DOC_SHELF, name, extension)
 
-  markdown = "<img src=\"#{target}\" width=152>"
+  #markdown = "<img src=\"#{target}\" width=152>"
+  markdown = "![image](#{target})"
   system("echo \"#{markdown}\" | pbcopy")
   puts "\n#{markdown}\n\n"
 end  
