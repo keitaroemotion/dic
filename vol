@@ -101,13 +101,9 @@ def options
   ARGV.select { |arg| Lib::Util::option?(arg) }
 end
 
-def match?(text, kw)
-  !Regexp.new("/^#{text}$/").match(kw).nil? 
-end
-
 def files_contains_keywords(files, key_words)
   files.select do |file|
-    key_words.select{|kw| match?(file, kw) }.size == key_words.size
+    key_words.select{|kw| Lib::Util::match?(file, kw) }.size == key_words.size
   end
 end
 

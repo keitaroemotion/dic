@@ -10,6 +10,8 @@ class Lib::UtilTest < Minitest::Test
   def test_match?
     refute @util.match?("precur*", "aprecure")
     assert @util.match?("precur*", "precure")
+    assert @util.match?("pr*re", "precure")
+    assert @util.match?("prec+re", "preccre")
     assert @util.match?("recur", "precure")
     assert @util.match?("*recure", "precure")
     refute @util.match?("*recu", "precure")
