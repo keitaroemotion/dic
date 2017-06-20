@@ -28,11 +28,15 @@ Help option:
 $ dic -h
 ```
 
-
 To delete the article,
 
 ```
 $ dic -d
+```
+
+To update your change in wiki:
+```
+$ dic -u
 ```
 
 # URL Configuration
