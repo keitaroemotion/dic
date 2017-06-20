@@ -103,7 +103,7 @@ end
 
 def files_contains_keywords(files, key_words)
   files.select do |file|
-    key_words.select{|kw| Lib::Util::match?(file, kw) }.size == key_words.size
+    key_words.select{|kw| Lib::Util::match?(kw, file) }.size == key_words.size
   end
 end
 
@@ -275,7 +275,6 @@ when "-c"
 else
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
   file_name = "#{DOC_SHELF}/#{key_words.join('_')}.md"
-  puts file_name
   if options.include?("-n") || File.exist?(file_name)
     edit(file_name)
   else
