@@ -51,7 +51,9 @@ end
 
 def edit(file_name)
    name = File.basename(file_name).gsub('.md','')
-   puts "\n#{name.green}\n\n"
+   puts
+   print "[New:] ".magenta unless File.exist?(file_name)
+   puts "#{name.green}\n\n"
    print "[m: markup, v: vim, l: links]\n" + 
          "[c: cat /: search]\n" +
          "[w: web u:update + open uu: update]\n" +
@@ -278,7 +280,7 @@ else
   if options.include?("-n") || File.exist?(file_name)
     edit(file_name)
   else
-    edit("#{DOC_SHELF}/#{show_and_get_file(all_files, key_words)}.md")
+    edit "#{DOC_SHELF}/#{show_and_get_file(all_files, key_words)}.md"
   end  
 end
 
