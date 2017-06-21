@@ -96,5 +96,11 @@ module Lib
      def self.option?(arg)
        arg.start_with?("-")
      end
+
+     def self.show(files)
+       puts
+       files.each_with_index { |file, i| puts "[#{i}] #{file}" }
+       puts
+     end
   end
 end

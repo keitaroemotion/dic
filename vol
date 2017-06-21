@@ -160,23 +160,10 @@ end
 def show_and_get_file(files, key_words, option=nil)
   files = get_files(files, key_words)
   return key_words.join("_") if files.size == 0
-  return files.first if files.size == 1
-  puts
-  files.each_with_index do |file, i|
-    puts "[#{i}] #{file}"
-  end
-  puts
-  unless option
-    print "[index|keywords] "
-    option = $stdin.gets.chomp
-  end  
-  if num?(option)
-    files[option.to_i] 
-  elsif option == "q"
-    abort
-  else
-    show_and_get_file(files, option.split(" "))
-  end
+  return files.first         if files.size == 1
+  Lib::Util.show files
+  option ||= ask("[index|keywords] ")
+  num?(option) ? files[option.to_i] : show_and_get_file(files, option.split(" "))
 end
 
 def parse_link(link)

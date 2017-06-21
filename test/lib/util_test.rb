@@ -86,9 +86,13 @@ class Lib::UtilTest < Minitest::Test
     assert @util.match?("p(recu|rocu)re", "precure")
     assert @util.match?("prec[^i]re", "precure")
   end
- 
+
   def test_option?
     assert @util.option?("-a") 
     refute @util.option?("aa-") 
+  end
+
+  def test_show
+    # TBD
   end
 end
