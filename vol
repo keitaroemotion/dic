@@ -69,6 +69,18 @@ def push(name, file_name, dest = nil)
   Lib::Util.push_as_link(DOC_SHELF, name, dest) 
 end
 
+def read_scr(lines, page)
+  return if lines.size == page
+  chunk = lines[page]
+  puts chunk.join.green
+  opt = Lib::Util.ask("[Next: Enter, Previous: p]".cyan)
+  if opt == "p"
+    read_scr(lines, page == 0 ? 0 : page-1)
+  else
+    read_scr(lines, page+1)
+  end
+end
+
 def edit(file_name)
    name = File.basename(file_name).gsub('.md','')
    puts
@@ -89,18 +101,6 @@ def edit(file_name)
      puts "=========================================".green
      puts 
    when "sc"
-     def read_scr(lines, page)
-       return if lines.size == page
-       chunk = lines[page]
-       puts chunk.join.green
-       opt = Lib::Util.ask("[Next: Enter, Previous: p]".cyan)
-       if opt == "p"
-         read_scr(lines, page == 0 ? 0 : page-1)
-       else
-         read_scr(lines, page+1)
-       end
-     end
-
      lines = File.open(file_name, "r")
        .to_a
        .select{|line| line.strip.chomp != "" }
@@ -312,6 +312,7 @@ when "-h", "--help"
   puts "#{APP_NAME} [word]    ... edit article"
   puts "#{APP_NAME} -d [word] ... remove article"
   puts "#{APP_NAME} -c        ... convert"
+  puts "#{APP_NAME} -g        ... grep"
   puts "#{APP_NAME} -u        ... update web page"
   puts "#{APP_NAME} -i [image file path] ... add image rsc and markdown to the clipboard"
   puts
@@ -323,6 +324,14 @@ when "-i" # image
   set_image
 when "-c"  
   do_convert
+when "-g"  
+  Dir["#{DOC_SHELF}/*"].select do |file|
+    unless File.directory?(file)
+      Lib::Util.include_all?(File.read(file), key_words)
+    end  
+  end.each do |file|
+    puts "[" + File.basename(file).gsub(".md", "").cyan + "]"
+  end
 else
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
   file_name = "#{DOC_SHELF}/#{key_words.join('_')}.md"
