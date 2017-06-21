@@ -7,6 +7,10 @@ class Lib::UtilTest < Minitest::Test
     @util = Lib::Util
   end
 
+  def test_ask
+    assert_equal "boiiin", @util.ask("oppai", "boiiin")
+  end
+
   def test_desterisk
     # TBD
   end

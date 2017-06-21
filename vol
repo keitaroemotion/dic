@@ -57,10 +57,13 @@ def edit(file_name)
    print "[m: markup, v: vim, l: links]\n" + 
          "[c: cat /: search]\n" +
          "[w: web u:update + open uu: update]\n" +
+         "[i: interweave]"
          "[which?] "
          
    opt = $stdin.gets.chomp
    case opt
+   when "i"
+     Lib::Util.push_as_link(file_name) 
    when "u"
      update_wiki
      url = config["url"].gsub("$", name)

@@ -1,9 +1,23 @@
 module Lib
   class Util
      STELLA = "*"
-     
+
+      def self.ask(message, debug = nil)
+       if debug
+         debug
+       else
+         print "[#{message}] "
+         $stdin.gets.chomp.downcase
+       end
+     end
+    
      def self.desterisk(regex)
        regex.gsub("*", "")
+     end
+
+     def self.push_as_link(file_name, debug = nil)
+       # we may have to interactviely ask
+       ask "dest:"
      end
 
      def self.regex_okay?(regex, text)
