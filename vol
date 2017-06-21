@@ -52,11 +52,12 @@ end
 def bring(name, file_name)
   another_page =
     show_and_get_file(all_files, Lib::Util.ask("page:").split(" "))
-  unless File.exist?(another_page)
-    system "touch #{another_page}"                
+  another_page_path = File.join(DOC_SHELF, another_page)  
+  unless File.exist?(another_page_path)
+    system "touch #{another_page_path}"                
   end
   Lib::Util.push_as_link(DOC_SHELF, another_page, name) 
-  File.basename(another_page) 
+  another_page
 end
 
 def push(name, file_name, dest = nil)
