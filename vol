@@ -55,13 +55,18 @@ def edit(file_name)
    print "[New:] ".magenta unless File.exist?(file_name)
    puts "#{name.green}\n\n"
    print "[m: markup, v: vim, l: links]\n" + 
-         "[c: cat /: search]\n" +
+         "[c: cat /: search h: head]\n" +
          "[w: web u:update + open uu: update]\n" +
          "[i: interweave]\n" + 
          "[which?] "
          
    opt = $stdin.gets.chomp
    case opt
+   when "h"
+     puts "\n=============== head =================".green
+     system "head #{file_name}"
+     puts "=========================================".green
+     puts 
    when "i"
      dest = show_and_get_file(all_files, Lib::Util.ask("dest:").split(" "))
      dest_file = File.join(DOC_SHELF, dest + ".md")
