@@ -75,7 +75,7 @@ def edit(file_name)
    print "[New:] ".magenta unless File.exist?(file_name)
    puts "#{name.green}\n\n"
    print "[m: markup, v: vim, l: links]\n" + 
-         "[c: cat /: search h: head]\n" +
+         "[c: cat /: search h: head d: delete]\n" +
          "[w: web u:update + open uu: update]\n" +
          "[p: push to another page]\n" + 
          "[b: bring in another page]\n" + 
@@ -105,6 +105,9 @@ def edit(file_name)
      system "open #{url}"
    when "c"
      system "cat #{file_name}"
+   when "d"  
+     system "rm #{file_name}"
+     puts "REMOVED: #{file_name}".red
    when "v"
      system "vim #{file_name}"
    when "l"
@@ -269,7 +272,7 @@ def set_image
 
   target  = image_path(DOC_SHELF_P, name, extension)
 
-  if File.exist!(target)
+  if File.exist?(target)
     target = "#{Time.now.to_f.to_i}_" + target
     name   = "#{Time.now.to_f.to_i}_" + name
   end
