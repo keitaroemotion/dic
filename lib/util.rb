@@ -19,6 +19,14 @@ module Lib
        regex.gsub("*", "")
      end
 
+     def self.assure_file(file)
+       unless File.exist?(file)
+         f = File.open(file, "w")
+         f.close
+       end  
+       file
+     end
+
      #
      # TODO:  this part is too verbose and boilerplate. needs to be refactored
      #
@@ -29,7 +37,7 @@ module Lib
        else
          file_name_md = ask("dest:", debug) + ".md"
        end
-       target_file = File.join(wiki_dir, file_name_md)
+       target_file = assure_file(File.join(wiki_dir, file_name_md))
        content = File.read(target_file)
        unless regex_okay?(/[\\#]\s*[Ll]ink/, content)
          content = "#{content}\n# Link\n"
