@@ -14,7 +14,12 @@ module Lib
          option
        end
      end
-    
+
+     def self.copy(from, to)
+       puts "#{from} ---> #{to}".green
+       system "cp #{from} #{to}"
+     end
+   
      def self.desterisk(regex)
        regex.gsub("*", "")
      end

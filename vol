@@ -248,11 +248,6 @@ def fit(path)
   path.gsub(" ", "\\ ")
 end
 
-def copy(from, to)
-  puts "#{from} ---> #{to}".green
-  system "cp #{from} #{to}"
-end
-
 def extract_files(files)
   files.select{|file| File.exist?(file)}
 end
@@ -297,12 +292,12 @@ def set_image
     end
   end
 
-  copy file, target
+  Lib::Util.copy file, target
 
   validate_file target
   fin_dest = fit(image_path(DOC_SHELF, name, extension))
 
-  copy target, fin_dest
+  Lib::Util.copy target, fin_dest
 
   validate_file fin_dest
 

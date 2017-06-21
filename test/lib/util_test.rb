@@ -12,6 +12,10 @@ class Lib::UtilTest < Minitest::Test
     assert_equal "boiiin", @util.ask("oppai", "boiiin")
   end
 
+  def test_copy
+    # TBD
+  end
+
   def test_desterisk
     # TBD
   end
