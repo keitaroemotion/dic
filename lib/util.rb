@@ -81,9 +81,6 @@ module Lib
     end
 
     def self.regex_okay?(regex, text)
-      print "#{regex} #{text}".cyan
-      print " "
-      puts  regex.match(text)
       !regex.match(text).nil?
     end
 
