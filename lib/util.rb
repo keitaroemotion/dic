@@ -75,7 +75,7 @@ module Lib
         content = "#{content}\n# Link\n"
       end
       f = File.open(target_file, "w")
-      content += "[#{file_name}](#{File.join(wiki_dir, file_name)}.md)\n"
+      content += "\n[#{file_name}](#{File.join(wiki_dir, file_name)}.md)\n"
       f.puts(content)
       f.close
       File.open(target_file, "r").each do |line|
