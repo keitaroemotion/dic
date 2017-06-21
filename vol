@@ -144,7 +144,7 @@ def get_file(files, key_words, option=nil)
   return key_words.join("_") if files.size == 0
   return files.first         if files.size == 1
   Lib::Util.show files
-  option ||= ask("[index|keywords] ")
+  option ||= Lib::Util.ask("[index|keywords] ")
   Lib::Util.num?(option) ? files[option.to_i] : get_file(files, option.split(" "))
 end
 
