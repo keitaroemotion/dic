@@ -47,6 +47,14 @@ To update your change in wiki:
 $ vol -u
 ```
 
+Grep search:
+
+```
+$ vol -g [term1] [term2],,,
+```
+Then you can retrieve the list of corresponding articles
+
+
 # URL Configuration
 
 Once you pushed your **wiki repository** in your **github repository**, then you have to edit the config.
