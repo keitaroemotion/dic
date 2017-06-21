@@ -202,7 +202,7 @@ def links(file)
     if Lib::Util.markdown_link_format?(link)
        link = Lib::Util.remove_markdown(link)      
     end
-    target = "#{DOC_SHELF}/#{File.basename(link.gsub('.md', ''))}.md"
+    target = "#{DOC_SHELF}/#{File.basename(link.gsub('.md', '')).chomp}.md"
     if File.exist?(target)
       edit target
     else
