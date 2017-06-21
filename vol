@@ -19,16 +19,6 @@ def convert(file)
       tokens = line.split("](")
       line = "!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(ROOT, "")
       line = line.gsub(DOC_SHELF + "/", "").gsub("!!","!")
-    elsif image_src?(line)   
-      url = File.dirname(config["url"]) + "/"
-      litok = line
-        .gsub(url, "")
-        .gsub("<img src=", "![](")
-        .split(" ")
-      cont = (litok[1] || "").gsub("=", "=\"").gsub(">", "") + "\""
-      cont = cont ? "{:#{cont}}" : ""
-      line = litok[0] + ")" + cont
-      line.gsub(DOC_SHELF + "/", "")
     else  
       puts line.green if line.include?("ccf")
       line
@@ -173,10 +163,6 @@ def parse_link(link)
   link.split(" ").select{|x| x.start_with?("http") || x.start_with?("/")}.first
 rescue
   abort "link parse failure: #{link}"
-end
-
-def image_src?(line)
-  line.include?("<img src=")
 end
 
 def image_link?(line)
