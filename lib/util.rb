@@ -1,3 +1,5 @@
+require "colorize"
+
 module Lib
   class Util
      STELLA = "*"
@@ -15,9 +17,16 @@ module Lib
        regex.gsub("*", "")
      end
 
-     def self.push_as_link(file_name, debug = nil)
+     def self.push_as_link(wiki_dir, file_name, debug = nil)
        # we may have to interactviely ask
-       ask "dest:"
+       # TODO: selection part necessary
+       file_name_md = ask("dest:", debug) + ".md"
+       target_file = File.join(wiki_dir, file_name_md)
+       content = File.read(target_file)
+       unless regex_okay?(/[\\#]\s*[Ll]ink/, content)
+         content = "#{content}\n# Link\n"
+       end
+       content + "[#{file_name}](#{File.join(wiki_dir, file_name)}.md)\n"
      end
 
      def self.regex_okay?(regex, text)
