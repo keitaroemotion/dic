@@ -93,6 +93,10 @@ module Lib
        !Regexp.new("#{regex}").match(target_string).nil? 
      end
 
+     def self.num?(num)
+       num =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
+     end
+
      def self.option?(arg)
        arg.start_with?("-")
      end

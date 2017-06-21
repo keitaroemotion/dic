@@ -34,12 +34,18 @@ def convert(file)
       line
     end
   end
+  rewrite(file, lines)
+end
+
+def rewrite(file, lines)
+  def trim_local_urls(line)
+    line.gsub(DOC_SHELF + "/", "")
+        .gsub(DOC_SHELF_P + "/", "")
+        .gsub(ROOT + "/", "")
+  end
   f = File.open(File.join(DOC_SHELF_P, File.basename(file)), "w")
   lines.compact.each do |line|
-    line = line.gsub(DOC_SHELF + "/", "")
-    line = line.gsub(DOC_SHELF_P + "/", "")
-    line = line.gsub(ROOT + "/", "")
-    f.puts line
+    f.puts trim_local_urls(line)
   end
   f.close
 end
@@ -53,7 +59,7 @@ end
 
 def bring(name, file_name)
   another_page =
-    show_and_get_file(all_files, Lib::Util.ask("page:").split(" "))
+    get_file(all_files, Lib::Util.ask("page:").split(" "))
   another_page_path = File.join(DOC_SHELF, another_page)  
   unless File.exist?(another_page_path)
     system "touch #{another_page_path}"                
@@ -63,7 +69,7 @@ def bring(name, file_name)
 end
 
 def push(name, file_name, dest = nil)
-  dest ||= show_and_get_file(all_files, Lib::Util.ask("dest:").split(" "))
+  dest ||= get_file(all_files, Lib::Util.ask("dest:").split(" "))
   dest_file = File.join(DOC_SHELF, dest + ".md")
   unless File.exist?(dest_file)
     system "touch #{dest_file}"                
@@ -126,7 +132,7 @@ def edit(file_name)
         opt = $stdin.gets.chomp
       end  
       opt = opt.split(" ")
-      edit("#{DOC_SHELF}/#{show_and_get_file(all_files, opt)}.md")
+      edit("#{DOC_SHELF}/#{get_file(all_files, opt)}.md")
        system "macdown #{file_name}"
      end  
    end
@@ -147,23 +153,19 @@ def files_contains_keywords(files, key_words)
   end
 end
 
-def num?(num)
-  num =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
-end
-
 def get_files(files, key_words)
   (files.size == 0 ? all_files : files_contains_keywords(files, key_words))
     .uniq
     .select{|x| x != "images"}
 end
 
-def show_and_get_file(files, key_words, option=nil)
+def get_file(files, key_words, option=nil)
   files = get_files(files, key_words)
   return key_words.join("_") if files.size == 0
   return files.first         if files.size == 1
   Lib::Util.show files
   option ||= ask("[index|keywords] ")
-  num?(option) ? files[option.to_i] : show_and_get_file(files, option.split(" "))
+  Lib::Util.num?(option) ? files[option.to_i] : get_file(files, option.split(" "))
 end
 
 def parse_link(link)
@@ -317,7 +319,7 @@ when "-h", "--help"
   puts "#{APP_NAME} -i [image file path] ... add image rsc and markdown to the clipboard"
   puts
 when "-d" 
-  term = show_and_get_file(all_files, key_words)
+  term = get_file(all_files, key_words)
   print "okay to delete [#{term}] ? [Y/n]: "
   system("rm #{DOC_SHELF}/#{term}.md") if $stdin.gets.chomp.downcase == "y"
 when "-i" # image
@@ -330,7 +332,7 @@ else
   if options.include?("-n") || File.exist?(file_name)
     edit(file_name)
   else
-    edit "#{DOC_SHELF}/#{show_and_get_file(all_files, key_words)}.md"
+    edit "#{DOC_SHELF}/#{get_file(all_files, key_words)}.md"
   end  
 end
 
