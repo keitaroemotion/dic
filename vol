@@ -144,7 +144,7 @@ def get_file(files, key_words, option=nil)
   return key_words.join("_") if files.size == 0
   return files.first         if files.size == 1
   Lib::Util.show files
-  option ||= Lib::Util.ask("[index|keywords] ")
+  option ||= Lib::Util.ask("index|keywords")
   Lib::Util.num?(option) ? files[option.to_i] : get_file(files, option.split(" "))
 end
 
@@ -155,20 +155,29 @@ rescue
   abort "link parse failure: #{link}"
 end
 
+def links_sub(links)
+  opt = 0
+  if links.size > 1
+    puts
+    links.each_with_index do |link, i|
+      title = link.split("](").first.gsub('[','').cyan
+      puts "[#{i.to_s.magenta}] #{title}"
+    end
+    opt = Lib::Util.ask("which? none:q")
+    unless Lib::Util.num?(opt)
+      return links_sub(links.select{|link| link.include?(opt) })
+    end
+  end
+
+  link = parse_link(links[opt.to_i])
+  link ||= links[opt.to_i]
+end
+
 def links(file)
   links = File.open(file, "r").select do |line|
     Lib::Util.is_link? line
   end
-  puts
-  links.each_with_index do |link, i|
-    puts "[#{i}] #{link.split("](").first.gsub('[','')}"
-  end
-  print "[which? none:q] "
-  opt = $stdin.gets.chomp.downcase
-  abort if opt == "q"
-
-  link = parse_link(links[opt.to_i])
-  link ||= links[opt.to_i]
+  link = links_sub(links)
   if http?(link)
     system "open #{link}"
   else
