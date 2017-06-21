@@ -10,24 +10,26 @@ DOC_SHELF_P  = "/usr/local/etc/#{APP_NAME}/pages"
 
 args = ARGV
 
-#
-# TODO: refactor this boilerplate
-#
-def convert(file)
-  lines = File.open(file, "r").map do |line|
-    if (image_link?(line) && !line.include?("http")) 
-      tokens = line.split("](")
-      line = "!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(ROOT, "")
-      line = line.gsub(DOC_SHELF + "/", "").gsub("!!","!")
-    else  
-      puts line.green if line.include?("ccf")
-      line
-    end
-  end
-  rewrite(file, lines)
+def md_image_link(line, root, shelf)
+  tokens = line.split("](")
+  ("!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(root, ""))
+    .gsub(shelf + "/", "").gsub("!!","!")
 end
 
-def rewrite(file, lines)
+def pict_link?(line)
+ Lib::Util.image_link?(line) && !line.include?("http")
+end
+
+def convert(file)
+  rewrite(
+    file:  file,
+    lines: File.open(file, "r").map do |line|
+             pict_link?(line) ? md_image_link(line, ROOT, DOC_SHELF) : line
+           end
+  )
+end
+
+def rewrite(file:, lines:)
   def trim_local_urls(line)
     line.gsub(DOC_SHELF + "/", "")
         .gsub(DOC_SHELF_P + "/", "")
@@ -137,20 +139,8 @@ def options
   ARGV.select { |arg| Lib::Util::option?(arg) }
 end
 
-def files_contains_keywords(files, key_words)
-  files.select do |file|
-    key_words.select{|kw| Lib::Util::match?(kw, file) }.size == key_words.size
-  end
-end
-
-def get_files(files, key_words)
-  (files.size == 0 ? all_files : files_contains_keywords(files, key_words))
-    .uniq
-    .select{|x| x != "images"}
-end
-
 def get_file(files, key_words, option=nil)
-  files = get_files(files, key_words)
+  files = Lib::Util.get_files(files, key_words)
   return key_words.join("_") if files.size == 0
   return files.first         if files.size == 1
   Lib::Util.show files
@@ -165,17 +155,9 @@ rescue
   abort "link parse failure: #{link}"
 end
 
-def image_link?(line)
-  !/\[*\]/.match(line).nil? && line.strip.start_with?("!")
-end
-
-def is_link?(line)
-  !/\[*\]/.match(line).nil? && !line.strip.start_with?("!")
-end
-
 def links(file)
   links = File.open(file, "r").select do |line|
-    is_link? line
+    Lib::Util.is_link? line
   end
   puts
   links.each_with_index do |link, i|

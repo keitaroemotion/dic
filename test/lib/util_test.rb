@@ -12,6 +12,10 @@ class Lib::UtilTest < Minitest::Test
     assert_equal "boiiin", @util.ask("oppai", "boiiin")
   end
 
+  def test_assure_file
+    # TBD
+  end
+
   def test_copy
     # TBD
   end
@@ -20,10 +24,46 @@ class Lib::UtilTest < Minitest::Test
     # TBD
   end
 
-  def write(file, content)
-    f = File.open(file, "w")
-    f.puts content
-    f.close
+  def test_include_all?
+    files = %w(
+      moomin_daisuki
+      hoahoa_moomoo
+      moeeee_akiba
+    )
+    assert @util.include_all?("moe_aaa_akiba", %w(moe akiba))
+    refute @util.include_all?("yayayaya", %w(moo moea))
+    refute @util.include_all?("xxxbinini", %w(xxx moea))
+  end
+
+  def test_files_contains_keywords
+    files = %w(
+      moomin_daisuki
+      hoahoa_moomoo
+      moeeee_akiba
+    )
+    assert ["moeeee_akiba"], @util.files_contains_keywords(files, %w(moe akiba))
+    assert files, @util.files_contains_keywords(files, %w(mo))
+    assert files[1], @util.files_contains_keywords(files, %w(hoahoa))
+  end
+
+  def test_get_files
+    # TBD
+  end
+
+  def test_image_link?
+    assert @util.image_link?("![oppai](boinboin/bakunyu/gyaru)")
+    refute @util.image_link?("[oppai](boinboin/bakunyu/gyaru)")
+    refute @util.image_link?("oppai](boinboin/bakunyu/gyaru)")
+    refute @util.image_link?("[oppai(boinboin/bakunyu/gyaru)")
+    refute @util.image_link?("![oppai]boinboin/bakunyu/gyaru")
+  end
+
+  def test_is_link?
+    assert @util.is_link?("[oppai](/boinboin/bakunyu/gyaru)")
+    refute @util.is_link?("![oppai](/boinboin/bakunyu/gyaru)")
+    refute @util.is_link?("oppai](/boinboin/bakunyu/gyaru)")
+    refute @util.is_link?("[oppai(/boinboin/bakunyu/gyaru)")
+    refute @util.is_link?("[oppai]/boinboin/bakunyu/gyaru")
   end
 
   def test_push_as_link
@@ -94,5 +134,13 @@ class Lib::UtilTest < Minitest::Test
 
   def test_show
     # TBD
+  end
+
+  private
+
+  def write(file, content)
+    f = File.open(file, "w")
+    f.puts content
+    f.close
   end
 end

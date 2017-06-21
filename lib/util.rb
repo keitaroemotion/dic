@@ -15,6 +15,14 @@ module Lib
        end
      end
 
+     def self.assure_file(file)
+       unless File.exist?(file)
+         f = File.open(file, "w")
+         f.close
+       end  
+       file
+     end
+
      def self.copy(from, to)
        puts "#{from} ---> #{to}".green
        system "cp #{from} #{to}"
@@ -23,13 +31,28 @@ module Lib
      def self.desterisk(regex)
        regex.gsub("*", "")
      end
+ 
+     def self.include_all?(text, key_words)
+       match_count = key_words.select{|kw| match?(kw, text)}.size
+       match_count == key_words.size
+     end
 
-     def self.assure_file(file)
-       unless File.exist?(file)
-         f = File.open(file, "w")
-         f.close
-       end  
-       file
+     def self.files_contains_keywords(files, key_words)
+       files.select {|file| include_all?(file, key_words)}
+     end
+
+     def self.get_files(files, key_words)
+       (files.size == 0 ? all_files : files_contains_keywords(files, key_words))
+         .uniq
+         .select{|x| x != "images"}
+     end
+
+     def self.image_link?(line)
+       regex_okay?(/!\[[\w\s]*\]\([\s\w.\/ ]*\)/, line.strip)
+     end
+
+     def self.is_link?(line)
+       regex_okay?(/^\[[\w\s]*\]\([\s\w.\/ ]*\)/, line.strip)
      end
 
      #
@@ -58,6 +81,9 @@ module Lib
      end
 
      def self.regex_okay?(regex, text)
+       print "#{regex} #{text}".cyan
+       print " "
+       puts  regex.match(text)
        !regex.match(text).nil?
      end
 
@@ -79,18 +105,18 @@ module Lib
        regex_okay?(/^\[[\w\s]*\]\([\w\s.\/ ]*\)/, link)
      end
 
-     def self.match?(regex, target_string)
-       stella_head = regex.start_with?(STELLA)
-       stella_tail = regex.end_with?(STELLA)
+     def self.match?(regestr, target_string)
+       stella_head = regestr.start_with?(STELLA)
+       stella_tail = regestr.end_with?(STELLA)
 
        if stella_head && stella_tail  
-         regex = desterisk(regex)
+         regestr = desterisk(regestr)
        else  
-         regex = stella_head ? "#{desterisk(regex)}$" : regex
-         regex = stella_tail ? "^#{desterisk(regex)}" : regex
+         regestr = stella_head ? "#{desterisk(regestr)}$" : regestr
+         regestr = stella_tail ? "^#{desterisk(regestr)}" : regestr
        end
        
-       !Regexp.new("#{regex}").match(target_string).nil? 
+       !Regexp.new("#{regestr}").match(target_string).nil? 
      end
 
      def self.num?(num)
