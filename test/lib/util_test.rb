@@ -107,22 +107,22 @@ class Lib::UtilTest < Minitest::Test
     end
 
     content = assert_suru("#{dir}/Links.md",    "\n# Links\n[oppai](boin)\n", dir)
-    assert_equal "\n# Links\n[oppai](boin)\n[floren](#{dir}/floren.md)\n", content
+    assert_equal "\n# Links\n[oppai](boin)\n\n[floren](#{dir}/floren.md)\n", content
 
     content = assert_suru("#{dir}/links.md",    "\n# links\n[oppai](boin)\n", dir)
-    assert_equal "\n# links\n[oppai](boin)\n[floren](#{dir}/floren.md)\n", content
+    assert_equal "\n# links\n[oppai](boin)\n\n[floren](#{dir}/floren.md)\n", content
 
     content = assert_suru("#{dir}/Link.md",     "\n# Link\n[oppai](boin)\n", dir)
-    assert_equal "\n# Link\n[oppai](boin)\n[floren](#{dir}/floren.md)\n", content
+    assert_equal "\n# Link\n[oppai](boin)\n\n[floren](#{dir}/floren.md)\n", content
 
     content = assert_suru("#{dir}/link.md",     "\n# link\n[oppai](boin)\n", dir)
-    assert_equal "\n# link\n[oppai](boin)\n[floren](#{dir}/floren.md)\n", content
+    assert_equal "\n# link\n[oppai](boin)\n\n[floren](#{dir}/floren.md)\n", content
 
     content = assert_suru("#{dir}/no_sharp.md", "\nlink\n[oppai](boin)\n", dir)
-    assert_equal "\nlink\n[oppai](boin)\n\n# Link\n[floren](#{dir}/floren.md)\n", content
+    assert_equal "\nlink\n[oppai](boin)\n\n# Link\n\n[floren](#{dir}/floren.md)\n", content
 
     content = assert_suru("#{dir}/missing.md",  "\n[oppai](boin)\n", dir)
-    assert_equal "\n[oppai](boin)\n\n# Link\n[floren](#{dir}/floren.md)\n", content
+    assert_equal "\n[oppai](boin)\n\n# Link\n\n[floren](#{dir}/floren.md)\n", content
   end
 
   def test_regex_okay?
