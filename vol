@@ -49,6 +49,25 @@ def config
   Hash[*confs]
 end
 
+def bring(name, file_name)
+  another_page =
+    show_and_get_file(all_files, Lib::Util.ask("page:").split(" "))
+  unless File.exist?(another_page)
+    system "touch #{another_page}"                
+  end
+  Lib::Util.push_as_link(DOC_SHELF, another_page, name) 
+  File.basename(another_page) 
+end
+
+def push(name, file_name, dest = nil)
+  dest ||= show_and_get_file(all_files, Lib::Util.ask("dest:").split(" "))
+  dest_file = File.join(DOC_SHELF, dest + ".md")
+  unless File.exist?(dest_file)
+    system "touch #{dest_file}"                
+  end
+  Lib::Util.push_as_link(DOC_SHELF, name, dest) 
+end
+
 def edit(file_name)
    name = File.basename(file_name).gsub('.md','')
    puts
@@ -68,21 +87,12 @@ def edit(file_name)
      system "head #{file_name}"
      puts "=========================================".green
      puts 
+   when "bp", "pb"  
+     push(name, file_name, bring(name, file_name))
    when "b"  
-     another_page =
-       show_and_get_file(all_files, Lib::Util.ask("page:").split(" "))
-     # dest_file = File.join(DOC_SHELF,  + ".md")
-     unless File.exist?(another_page)
-       system "touch #{another_page}"                
-     end
-     Lib::Util.push_as_link(DOC_SHELF, another_page, name) 
+     bring(name, file_name)
    when "p"
-     dest = show_and_get_file(all_files, Lib::Util.ask("dest:").split(" "))
-     dest_file = File.join(DOC_SHELF, dest + ".md")
-     unless File.exist?(dest_file)
-       system "touch #{dest_file}"                
-     end
-     Lib::Util.push_as_link(DOC_SHELF, name, dest) 
+     push(name, file_name)
    when "u"
      update_wiki
      url = config["url"].gsub("$", name)
