@@ -242,7 +242,12 @@ def image_path(root, name, extension)
   "#{root}/images/#{name}.#{extension}".gsub("//","/")
 end
 
+def fit(path)
+  path.gsub(" ", "\\ ")
+end
+
 def copy(from, to)
+  puts "#{from} ---> #{to}".green
   system "cp #{from} #{to}"
 end
 
@@ -264,23 +269,41 @@ def set_image
   stop "you need name", !name 
   files = extract_files(key_words)
   stop "you need image file.", files.size == 0
-  file = files.first
+  file = fit(files.first)
   ARGV.delete(file)
   extension = file.split(".").last
 
   mkdir_docshelfs 
 
-  target  = image_path(DOC_SHELF_P, name, extension)
+  target  = fit(image_path(DOC_SHELF_P, name, extension))
+
+  def xxx(target)
+    File.join(
+      File.dirname(target), 
+      "#{Time.now.to_f.to_i}_" + File.basename(target)
+    )  
+  end
 
   if File.exist?(target)
-    target = "#{Time.now.to_f.to_i}_" + target
-    name   = "#{Time.now.to_f.to_i}_" + name
+    target = xxx(target)
+    name   = xxx(name)
+  end
+
+  def validate_file(file)
+    unless File.exist?(file)
+      abort "FILE ABSENT: #{file}".red
+    end
   end
 
   copy file, target
-  copy target, image_path(DOC_SHELF, name, extension)
 
-  #markdown = "<img src=\"#{target}\" width=152>"
+  validate_file target
+  fin_dest = fit(image_path(DOC_SHELF, name, extension))
+
+  copy target, fin_dest
+
+  validate_file fin_dest
+
   markdown = "![image](#{target})"
   system("echo \"#{markdown}\" | pbcopy")
   puts "\n#{markdown}\n\n"
