@@ -62,6 +62,13 @@ Then install it again:
 $ ./installer
 ```
 
+# Testing
+
+```
+
+$ ./test/yaru
+```
+
 
 # Donation
 
