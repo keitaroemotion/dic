@@ -17,16 +17,29 @@ module Lib
        regex.gsub("*", "")
      end
 
-     def self.push_as_link(wiki_dir, file_name, debug = nil)
-       # we may have to interactviely ask
-       # TODO: selection part necessary
-       file_name_md = ask("dest:", debug) + ".md"
+     #
+     # TODO:  this part is too verbose and boilerplate. needs to be refactored
+     #
+     def self.push_as_link(wiki_dir, file_name, dest = nil, debug = nil)
+       file_name_md = ""
+       if dest
+         file_name_md = dest + ".md"
+       else
+         file_name_md = ask("dest:", debug) + ".md"
+       end
        target_file = File.join(wiki_dir, file_name_md)
        content = File.read(target_file)
        unless regex_okay?(/[\\#]\s*[Ll]ink/, content)
          content = "#{content}\n# Link\n"
        end
-       content + "[#{file_name}](#{File.join(wiki_dir, file_name)}.md)\n"
+       f = File.open(target_file, "w")
+       content += "[#{file_name}](#{File.join(wiki_dir, file_name)}.md)\n"
+       f.puts(content)
+       f.close
+       File.open(target_file, "r").each do |line|
+         puts line.include?(file_name) ? line.magenta : line
+       end
+       File.read(target_file)
      end
 
      def self.regex_okay?(regex, text)

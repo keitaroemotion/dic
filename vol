@@ -63,7 +63,12 @@ def edit(file_name)
    opt = $stdin.gets.chomp
    case opt
    when "i"
-     Lib::Util.push_as_link(file_name) 
+     dest = show_and_get_file(all_files, Lib::Util.ask("dest:").split(" "))
+     dest_file = File.join(DOC_SHELF, dest + ".md")
+     unless File.exist?(dest_file)
+       system "touch #{dest_file}"                
+     end
+     Lib::Util.push_as_link(DOC_SHELF, file_name, dest) 
    when "u"
      update_wiki
      url = config["url"].gsub("$", name)
