@@ -58,6 +58,7 @@ def edit(file_name)
          "[c: cat /: search h: head]\n" +
          "[w: web u:update + open uu: update]\n" +
          "[p: push to another page]\n" + 
+         "[b: bring in another page]\n" + 
          "[which?] "
          
    opt = $stdin.gets.chomp
@@ -67,6 +68,14 @@ def edit(file_name)
      system "head #{file_name}"
      puts "=========================================".green
      puts 
+   when "b"  
+     another_page =
+       show_and_get_file(all_files, Lib::Util.ask("page:").split(" "))
+     # dest_file = File.join(DOC_SHELF,  + ".md")
+     unless File.exist?(another_page)
+       system "touch #{another_page}"                
+     end
+     Lib::Util.push_as_link(DOC_SHELF, another_page, name) 
    when "p"
      dest = show_and_get_file(all_files, Lib::Util.ask("dest:").split(" "))
      dest_file = File.join(DOC_SHELF, dest + ".md")
