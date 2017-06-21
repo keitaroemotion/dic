@@ -18,7 +18,7 @@ def convert(file)
     if (image_link?(line) && !line.include?("http")) 
       tokens = line.split("](")
       line = "!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(ROOT, "")
-      line.gsub(DOC_SHELF + "/", "").gsub("!!","!")
+      line = line.gsub(DOC_SHELF + "/", "").gsub("!!","!")
     elsif image_src?(line)   
       url = File.dirname(config["url"]) + "/"
       litok = line
@@ -37,6 +37,8 @@ def convert(file)
   f = File.open(File.join(DOC_SHELF_P, File.basename(file)), "w")
   lines.compact.each do |line|
     line = line.gsub(DOC_SHELF + "/", "")
+    line = line.gsub(DOC_SHELF_P + "/", "")
+    line = line.gsub(ROOT + "/", "")
     f.puts line
   end
   f.close
