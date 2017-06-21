@@ -168,15 +168,12 @@ def get_file(files, key_words, option=nil)
   Lib::Util.num?(option) ? files[option.to_i] : get_file(files, option.split(" "))
 end
 
-def parse_link(link)
-  link = link.split("](")[1].gsub(')','')
-  link.split(" ").select{|x| x.start_with?("http") || x.start_with?("/")}.first
-rescue
-  abort "link parse failure: #{link}"
-end
-
 def links_sub(links)
   opt = 0
+  if links.size == 0
+    puts "\nno links\n".red
+    return
+  end
   if links.size > 1
     puts
     links.each_with_index do |link, i|
@@ -189,32 +186,31 @@ def links_sub(links)
     end
   end
 
-  link = parse_link(links[opt.to_i])
+  # link = parse_link(links[opt.to_i])
   link ||= links[opt.to_i]
 end
 
 def links(file)
-  links = File.open(file, "r").select do |line|
-    Lib::Util.is_link? line
+  links = File.open(file, "r").select do |link|
+    Lib::Util.http(link) || Lib::Util.is_link?(link) 
   end
   link = links_sub(links)
-  if http?(link)
-    system "open #{link}"
-  else
+  link ||= ""
+  http = Lib::Util.http(link)
+  if http
+    puts "calling... #{http}"
+    system "open #{http}"
+  elsif Lib::Util.is_link?(link)
     if Lib::Util.markdown_link_format?(link)
        link = Lib::Util.remove_markdown(link)      
     end
-    target = "#{DOC_SHELF}/#{File.basename(link.gsub('.md', '')).chomp}.md"
+    target = "#{DOC_SHELF}/#{File.basename((link || "").gsub('.md', '')).chomp}.md"
     if File.exist?(target)
       edit target
     else
       puts "\ninvalid link: #{target}\n\n"
     end
   end
-end
-
-def http?(link)
-  link.include?("http")
 end
 
 def all_files

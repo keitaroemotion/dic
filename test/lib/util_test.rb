@@ -50,6 +50,33 @@ class Lib::UtilTest < Minitest::Test
     # TBD
   end
 
+  def test_http
+    assert_equal(
+      "http://oppai.com/oppai/boiin/moiin.php",
+      @util.http("http://oppai.com/oppai/boiin/moiin.php").to_s
+    )
+    assert_equal(
+      "http://oppai.com/oppai/boiin/moiin.php",
+      @util.http("(http://oppai.com/oppai/boiin/moiin.php)").to_s
+    )
+    assert_equal(
+      "http://oppai.com/oppai/boiin/moiin.php",
+      @util.http("[oppao](http://oppai.com/oppai/boiin/moiin.php)").to_s
+    )
+    assert_equal(
+      "https://oppai.com/oppai/boiin/moiin.php",
+      @util.http("The United Nations announces yesterday: " +
+                  "Please see the link here: " +
+                  "[oppao](https://oppai.com/oppai/boiin/moiin.php) Okay?" +
+                  "Your boobs are really really good!"
+                  ).to_s
+      )
+    assert_equal(
+      "",
+      @util.http("[oppao](oppai.com/oppai/boiin/moiin.php) Okay?").to_s
+    )  
+  end
+
   def test_image_link?
     assert @util.image_link?("![oppai](boinboin/bakunyu/gyaru)")
     refute @util.image_link?("[oppai](boinboin/bakunyu/gyaru)")

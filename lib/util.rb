@@ -47,6 +47,10 @@ module Lib
         .select{|x| x != "images"}
     end
 
+    def self.http(link)
+      /htt(p|ps)[^\)\( ]*/.match link
+    end
+
     def self.image_link?(line)
       regex_okay?(/!\[[\w\s]*\]\([\s\w.\/ ]*\)/, line.strip)
     end
