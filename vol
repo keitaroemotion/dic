@@ -91,6 +91,7 @@ def edit(file_name)
          "[w: web u:update + open uu: update]\n" +
          "[p: push to another page]\n" + 
          "[b: bring in another page]\n" + 
+         "[mv: rename]\n" + 
          "[which?] "
          
    opt = $stdin.gets.chomp
@@ -100,6 +101,12 @@ def edit(file_name)
      system "head #{file_name}"
      puts "=========================================".green
      puts 
+   when "mv"
+     new_name = Lib::Util.ask("new name:")
+     dest = File.join(DOC_SHELF, new_name) + ".md"
+     system "mv #{file_name} #{dest}"
+     system "rm #{File.join(DOC_SHELF_P, File.basename(file_name))}"
+     edit(dest)
    when "sc"
      lines = File.open(file_name, "r")
        .to_a
@@ -244,8 +251,8 @@ def inter(message)
 end
 
 def set_image
-  name = inter "[name:] "  
-  stop "you need name", !name 
+  t = Time.now
+  name = "#{t.year}#{t.month}#{t.day}#{t.to_f.to_i}"
   files = extract_files(key_words)
   stop "you need image file.", files.size == 0
   file = fit(files.first)
@@ -255,18 +262,6 @@ def set_image
   mkdir_docshelfs 
 
   target  = fit(image_path(DOC_SHELF_P, name, extension))
-
-  def xxx(target)
-    File.join(
-      File.dirname(target), 
-      "#{Time.now.to_f.to_i}_" + File.basename(target)
-    )  
-  end
-
-  if File.exist?(target)
-    target = xxx(target)
-    name   = xxx(name)
-  end
 
   def validate_file(file)
     unless File.exist?(file)
