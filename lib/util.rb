@@ -9,7 +9,9 @@ module Lib
          debug
        else
          print "[#{message}] "
-         $stdin.gets.chomp.downcase
+         option = $stdin.gets.chomp.downcase
+         abort if option == "q"
+         option
        end
      end
     
