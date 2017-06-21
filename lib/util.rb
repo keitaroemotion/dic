@@ -1,9 +1,17 @@
 module Lib
   class Util
      STELLA = "*"
- 
+     
      def self.desterisk(regex)
        regex.gsub("*", "")
+     end
+
+     def self.regex_okay?(regex, text)
+       !regex.match(text).nil?
+     end
+
+     def self.markdown_link_format?(link)
+       regex_okay?(/^\[[\w\s]*\]\([\w\s.\/ ]*\)/, link)
      end
 
      def self.match?(regex, target_string)

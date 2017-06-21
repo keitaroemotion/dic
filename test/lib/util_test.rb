@@ -7,6 +7,16 @@ class Lib::UtilTest < Minitest::Test
     @util = Lib::Util
   end
 
+  def test_desterisk
+    # TBD
+  end
+
+  def test_markdown_link_format?
+    assert @util.markdown_link_format?("[izumi konata](/lucky/star/kagamin.md)")
+    refute @util.markdown_link_format?("[izumi konata](/lucky/star/kagamin.md")
+    # refute @util.markdown_link_format?("izumi konata](/lucky/star/kagamin.md)")
+  end
+
   def test_match?
     refute @util.match?("precur*", "aprecure")
     assert @util.match?("precur*", "precure")

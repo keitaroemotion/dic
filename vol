@@ -19,7 +19,7 @@ def convert(file)
       tokens = line.split("](")
       line = "!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(ROOT, "")
       line.gsub(DOC_SHELF + "/", "").gsub("!!","!")
-    elsif image_link_2?(line)   
+    elsif image_src?(line)   
       url = File.dirname(config["url"]) + "/"
       litok = line
         .gsub(url, "")
@@ -148,7 +148,7 @@ rescue
   abort "link parse failure: #{link}"
 end
 
-def image_link_2?(line)
+def image_src?(line)
   line.include?("<img src=")
 end
 
@@ -174,7 +174,7 @@ def links(file)
 
   link = parse_link(links[opt.to_i])
   link ||= links[opt.to_i]
-  if link.include?("http")
+  if http?(link)
     system "open #{link}"
   else
     target = "#{DOC_SHELF}/#{link}.md"
@@ -184,6 +184,10 @@ def links(file)
       puts "\ninvalid link: #{target}\n\n"
     end
   end
+end
+
+def http?(link)
+  link.include?("http")
 end
 
 def all_files
