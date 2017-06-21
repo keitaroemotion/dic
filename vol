@@ -74,7 +74,7 @@ def edit(file_name)
    puts
    print "[New:] ".magenta unless File.exist?(file_name)
    puts "#{name.green}\n\n"
-   print "[m: markup, v: vim, l: links]\n" + 
+   print "[m: markup, v: vim, l: links sc: scroll]\n" + 
          "[c: cat /: search h: head d: delete]\n" +
          "[w: web u:update + open uu: update]\n" +
          "[p: push to another page]\n" + 
@@ -88,6 +88,26 @@ def edit(file_name)
      system "head #{file_name}"
      puts "=========================================".green
      puts 
+   when "sc"
+     def read_scr(lines, page)
+       return if lines.size == page
+       chunk = lines[page]
+       puts chunk.join.green
+       opt = Lib::Util.ask("[Next: Enter, Previous: p]".cyan)
+       if opt == "p"
+         read_scr(lines, page == 0 ? 0 : page-1)
+       else
+         read_scr(lines, page+1)
+       end
+     end
+
+     lines = File.open(file_name, "r")
+       .to_a
+       .select{|line| line.strip.chomp != "" }
+       .each_slice(10)
+       .to_a
+
+     read_scr(lines, 0)  
    when "bp", "pb"  
      push(name, file_name, bring(name, file_name))
    when "b"  
