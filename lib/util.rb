@@ -10,6 +10,20 @@ module Lib
        !regex.match(text).nil?
      end
 
+     def self.purge(text:, enemies:)
+       enemies.each do |enemy|
+         text = text.gsub(enemy, "")
+       end
+       text
+     end
+
+     def self.remove_markdown(link)
+       purge(
+         text:    File.basename(link.split("](")[1]),
+         enemies: [")", "[", ".md"]
+       )  
+     end
+
      def self.markdown_link_format?(link)
        regex_okay?(/^\[[\w\s]*\]\([\w\s.\/ ]*\)/, link)
      end

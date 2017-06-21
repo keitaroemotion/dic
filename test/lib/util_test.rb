@@ -11,6 +11,14 @@ class Lib::UtilTest < Minitest::Test
     # TBD
   end
 
+  def test_regex_okay?
+    # TBD
+  end
+
+  def test_remove_markdown?
+    assert_equal "moeee", @util.remove_markdown("[tsukasa](/hiiragi/moeee.md)")
+  end
+
   def test_markdown_link_format?
     assert @util.markdown_link_format?("[izumi konata](/lucky/star/kagamin.md)")
     refute @util.markdown_link_format?("[izumi konata](/lucky/star/kagamin.md")

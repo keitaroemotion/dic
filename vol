@@ -177,6 +177,9 @@ def links(file)
   if http?(link)
     system "open #{link}"
   else
+    if Lib::Util.markdown_link_fomat?(link)
+       link = Lib::Util.remove_markdown(linke)      
+    end
     target = "#{DOC_SHELF}/#{link}.md"
     if File.exist?(target)
       edit target
