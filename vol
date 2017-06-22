@@ -307,7 +307,25 @@ when "-h", "--help"
   puts "#{APP_NAME} -g        ... grep"
   puts "#{APP_NAME} -u        ... update web page"
   puts "#{APP_NAME} -i [image file path] ... add image rsc and markdown to the clipboard"
+  puts "#{APP_NAME} --replace [from] [to] ... replace [from] [to]"
   puts
+when "--replace"
+  #
+  # might be okay.
+  # test would be needed.
+  #
+  abort "there has to be [from] and [to] parameters" if key_words.size < 2
+  from = key_words[0]
+  abort "[from] missing." unless from
+  to   = key_words[1]
+  Dir["#{DOC_SHELF}/*"].each do |file|
+    unless File.directory?(file)
+      replaced_content = File.read(file).gsub(from , to.cyan)
+      f = File.open(file, "w")
+      f.puts replaced_content
+      f.close
+    end  
+  end
 when "-d" 
   term = get_file(all_files, key_words)
   print "okay to delete [#{term}] ? [Y/n]: "
