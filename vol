@@ -73,8 +73,10 @@ def read_scr(lines, page)
   return if lines.size == page
   chunk = lines[page]
   puts chunk.join.green
-  opt = Lib::Util.ask("[Next: Enter, Previous: p]".cyan)
-  if opt == "p"
+  opt = Lib::Util.ask_no_abort("Next: Enter, Previous: p".cyan)
+  if opt == ""
+    return  
+  elsif opt == "p"
     read_scr(lines, page == 0 ? 0 : page-1)
   else
     read_scr(lines, page+1)
