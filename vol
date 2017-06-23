@@ -146,7 +146,7 @@ def edit(file_name)
    when "m"  
      system "macdown #{file_name}"
    else
-     if opt.start_with?("/")
+     if (opt || "").start_with?("/")
       opt = opt.gsub("/", "")
       unless opt
         print "[term:] "
