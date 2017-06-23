@@ -124,14 +124,27 @@ module Lib
       num =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
     end
 
+    def self.nasty_format?(file)
+      /\.(xlsx|docx|xls)/.match(file)
+    end
+
     def self.option?(arg)
       arg.start_with?("-")
+    end
+
+    def self.parse_link(link)
+      title = /\[[\s\w\.\/]*\]/.match(link)
+      [title, /\([\s\w\.\/]*\)/.match(link).to_s.gsub("(", "").gsub(")", "")]
     end
 
     def self.show(files)
       puts
       files.each_with_index { |file, i| puts "[#{i}] #{file}" }
       puts
+    end
+
+    def self.vim_prone_format?(file)
+      /\.(txt|csv|yaml)/.match(file)
     end
   end
 end

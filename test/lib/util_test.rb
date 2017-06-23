@@ -8,6 +8,21 @@ class Lib::UtilTest < Minitest::Test
     @util = Lib::Util
   end
 
+  def test_nasty_format?
+    assert nasty_format?("oppai.xlsx")    
+    assert nasty_format?("xxvideo.ahan.xls")    
+    assert nasty_format?("korakora.docx")    
+    refute nasty_format?("sigoto-chu.dc")    
+    refute nasty_format?("yanke.txt")    
+  end
+
+  def test_parse_link
+   assert_equal(
+     "./etc/moomin_valley/ahomiyu.csv",
+     Lib::Util.parse_link("[manuke](./etc/moomin_valley/ahomiyu.csv)")[1]
+   )  
+  end
+
   def test_ask
     assert_equal "boiiin", @util.ask("oppai", "boiiin")
   end
@@ -161,6 +176,14 @@ class Lib::UtilTest < Minitest::Test
 
   def test_show
     # TBD
+  end
+
+  def test_vim_prone_format?
+    assert vim_prone_format?("oppai.txt")    
+    assert vim_prone_format?("puriketsu.csv")    
+    refute vim_prone_format?("puriketsu.md")    
+    refute vim_prone_format?("puriketsu")    
+    refute vim_prone_format?("puriketsu.xlsx")    
   end
 
   private

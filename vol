@@ -211,6 +211,13 @@ def links(file)
     puts "calling... #{http}"
     system "open #{http}"
   elsif Lib::Util.is_link?(link)
+    if Lib::Util.nasty_format?(link)
+      system "open #{Lib::Util.parse_link(link)[1]}"
+    end
+    if Lib::Util.vim_prone_format?(link)
+      system "vim #{Lib::Util.parse_link(link)[1]}"
+    end
+
     if Lib::Util.markdown_link_format?(link)
        link = Lib::Util.remove_markdown(link)      
     end
@@ -291,8 +298,12 @@ def update_wiki
   system "cd #{ROOT};git add #{ROOT};git commit -m \"page updated\";git push origin master"
 end
 
+def files(dir)
+  Dir["#{dir}/*"]
+end
+
 def do_convert
-  Dir["#{DOC_SHELF}/*"].each do |file|
+  files(DOC_SHELF).each do |file|
     convert(file) if File.file?(file)
   end
 end
