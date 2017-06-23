@@ -144,8 +144,8 @@ module Lib
     end
 
     def self.parse_link(link)
-      title = /\[[\d\s\w\.\/]*\]/.match(link)
-      [title, /\([\d\s\w\.\/]*\)/.match(link).to_s.gsub("(", "").gsub(")", "")]
+      title = /\[[\-\d\s\w\.\/]*\]/.match(link)
+      [title.to_s, /\([\-\d\s\w\.\/]*\)/.match(link).to_s.gsub("(", "").gsub(")", "")]
     end
 
     def self.show(files)
