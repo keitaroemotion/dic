@@ -136,7 +136,7 @@ module Lib
     end
 
     def self.nasty_format?(file)
-      /\.(xlsx|docx|xls)/.match(file)
+      /\.(xlsx|pdf|docx|xls)/.match(file)
     end
 
     def self.option?(arg)

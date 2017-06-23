@@ -95,7 +95,8 @@ def edit(file_name)
          "[mv: rename]\n" + 
          "[which?] "
          
-   opt = $stdin.gets.chomp
+   opts = $stdin.gets.chomp.split(" ")
+   opt = opts[0]
    case opt
    when "h"
      puts "\n=============== head =================".green
@@ -139,7 +140,7 @@ def edit(file_name)
    when "v"
      system "vim #{file_name}"
    when "l"
-     links(file_name) || edit(file_name)
+     links(file_name, opts[1..-1]) || edit(file_name)
    when "q"  
      abort
    when "m"  
@@ -202,10 +203,13 @@ def links_sub(links)
   link ||= links[opt.to_i]
 end
 
-def links(file)
+def links(file, particles)
   links = File.open(file, "r").select do |link|
     Lib::Util.http(link) || Lib::Util.is_link?(link) 
   end
+  if particles.size > 0
+    links = links.select{ |link| Lib::Util.include_all?(link, particles) }
+  end  
   link = links_sub(links)
   return false unless link 
   http = Lib::Util.http(link)
