@@ -81,9 +81,12 @@ def read_scr(lines, page)
   end
 end
 
-def edit(file_name)
-  red = redirect(File.read(file_name).split("\n")) if File.exist?(file_name)
-  return if red
+def edit(file_name, redirection=true)
+  red = false 
+  if redirection
+    red = redirect(File.read(file_name).split("\n")) if File.exist?(file_name)
+  end  
+  return edit(file_name, false) if red
 
   name = File.basename(file_name).gsub('.md','')
   puts
