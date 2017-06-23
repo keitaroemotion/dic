@@ -188,7 +188,7 @@ def links_sub(links)
     links.each_with_index do |link, i|
       parses = Lib::Util.parse_link(link)
       title = parses[0].cyan
-      title ||= /http[\w]*/.match(link).to_s.cyan
+      title ||= /htt(p|ps)\:\/\/[\w]*/.match(link).to_s.cyan
       if title == "" || title.nil?
         puts "[#{i.to_s.magenta}] #{Lib::Util.http(link)}"
       else

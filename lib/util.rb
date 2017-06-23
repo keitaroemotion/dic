@@ -59,7 +59,7 @@ module Lib
     end
 
     def self.http(link)
-      /htt(p|ps)[^\)\( ]*/.match link
+      /htt(p|ps)\:\/\/[^\)\( ]*/.match link
     end
 
     def self.image_link?(line)
