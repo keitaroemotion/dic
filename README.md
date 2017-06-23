@@ -54,6 +54,16 @@ $ vol -g [term1] [term2],,,
 ```
 Then you can retrieve the list of corresponding articles
 
+# Direct URL - Page connection
+
+If you put in the following:
+
+```
+$http://....
+```
+
+If the script refer to this .md page it just directly jump to the webpage.
+
 
 # URL Configuration
 

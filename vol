@@ -82,82 +82,84 @@ def read_scr(lines, page)
 end
 
 def edit(file_name)
-   name = File.basename(file_name).gsub('.md','')
-   puts
-   print "[New:] ".magenta unless File.exist?(file_name)
-   puts "#{name.green}\n\n"
-   print "[m: markup, v: vim, l: links sc: scroll]\n" + 
-         "[c: cat /: search h: head d: delete]\n" +
-         "[w: web u:update + open uu: update]\n" +
-         "[p: push to another page]\n" + 
-         "[b: bring another page]\n" + 
-         "[pb: mutual links]" + 
-         "[mv: rename]\n" + 
-         "[which?] "
-         
-   opts = $stdin.gets.chomp.split(" ")
-   opt = opts[0]
-   case opt
-   when "h"
-     puts "\n=============== head =================".green
-     system "head #{file_name}"
-     puts "=========================================".green
-     puts 
-   when "mv"
-     new_name = Lib::Util.ask("new name:")
-     dest = File.join(DOC_SHELF, new_name) + ".md"
-     system "mv #{file_name} #{dest}"
-     system "rm #{File.join(DOC_SHELF_P, File.basename(file_name))}"
-     edit(dest)
-   when "sc"
-     lines = File.open(file_name, "r")
-       .to_a
-       .select{|line| line.strip.chomp != "" }
-       .each_slice(10)
-       .to_a
+  red = redirect(File.read(file_name).split("\n")) if File.exist?(file_name)
+  return if red
 
-     read_scr(lines, 0)  
-   when "bp", "pb"  
-     push(name, file_name, bring(name, file_name))
-   when "b"  
-     bring(name, file_name)
-   when "p"
-     push(name, file_name)
-   when "u"
-     update_wiki
-     url = config["url"].gsub("$", name)
-     system "open #{url}"
-   when "uu"  
-     update_wiki
-   when "w"
-     url = config["url"].gsub("$", name)
-     system "open #{url}"
-   when "c"
-     system "cat #{file_name}"
-   when "d"  
-     system "rm #{file_name}"
-     puts "REMOVED: #{file_name}".red
-   when "v"
-     system "vim #{file_name}"
-   when "l"
-     links(file_name, opts[1..-1]) || edit(file_name)
-   when "q"  
-     abort
-   when "m"  
-     system "macdown #{file_name}"
-   else
-     if (opt || "").start_with?("/")
+  name = File.basename(file_name).gsub('.md','')
+  puts
+  print "[New:] ".magenta unless File.exist?(file_name)
+  puts "#{name.green}\n\n"
+  print "[m: markup, v: vim, l: links sc: scroll]\n" + 
+        "[c: cat /: search h: head d: delete]\n" +
+        "[w: web u:update + open uu: update]\n" +
+        "[p: push to another page]\n" + 
+        "[b: bring another page]\n" + 
+        "[pb: mutual links]" + 
+        "[mv: rename]\n" + 
+        "[which?] "
+        
+  opts = $stdin.gets.chomp.split(" ")
+  opt = opts[0]
+  case opt
+  when "h"
+    puts "\n=============== head =================".green
+    system "head #{file_name}"
+    puts "=========================================".green
+    puts 
+  when "mv"
+    new_name = Lib::Util.ask("new name:")
+    dest = File.join(DOC_SHELF, new_name) + ".md"
+    system "mv #{file_name} #{dest}"
+    system "rm #{File.join(DOC_SHELF_P, File.basename(file_name))}"
+    edit(dest)
+  when "sc"
+    lines = File.open(file_name, "r")
+      .to_a
+      .select{|line| line.strip.chomp != "" }
+      .each_slice(10)
+      .to_a
+
+    read_scr(lines, 0)  
+  when "bp", "pb"  
+    push(name, file_name, bring(name, file_name))
+  when "b"  
+    bring(name, file_name)
+  when "p"
+    push(name, file_name)
+  when "u"
+    update_wiki
+    url = config["url"].gsub("$", name)
+    system "open #{url}"
+  when "uu"  
+    update_wiki
+  when "w"
+    url = config["url"].gsub("$", name)
+    system "open #{url}"
+  when "c"
+    system "cat #{file_name}"
+  when "d"  
+    system "rm #{file_name}"
+    puts "REMOVED: #{file_name}".red
+  when "v"
+    system "vim #{file_name}"
+  when "l"
+    links(file_name, opts[1..-1]) || edit(file_name)
+  when "q"  
+    abort
+  when "m"  
+    system "macdown #{file_name}"
+  else
+    if (opt || "").start_with?("/")
       opt = opt.gsub("/", "")
       unless opt
         print "[term:] "
         opt = $stdin.gets.chomp
       end  
       opt = opt.split(" ")
-      edit("#{DOC_SHELF}/#{get_file(all_files, opt)}.md")
-       system "macdown #{file_name}"
-     end  
-   end
-   edit file_name
+      file_name = "#{DOC_SHELF}/#{get_file(all_files, opt)}.md"
+    end  
+  end
+  edit file_name
 end
 
 def key_words
@@ -203,15 +205,23 @@ def links_sub(links)
       return links_sub(links.select{|link| link.downcase.include?(opt) })
     end
   end
-
-  # link = parse_link(links[opt.to_i])
   link ||= links[opt.to_i]
+end
+
+def redirect(links)
+  redirection = links.select {|link| link.include?("$http")}[0]
+  if redirection
+    system "open #{redirection.gsub('$', '')}"
+    return true
+  end
+  false
 end
 
 def links(file, particles)
   links = File.open(file, "r").select do |link|
     Lib::Util.http(link) || Lib::Util.is_link?(link) 
   end
+
   if particles.size > 0
     links = links.select{ |link| Lib::Util.include_all?(link, particles) }
   end  
