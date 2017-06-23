@@ -139,7 +139,7 @@ def edit(file_name)
    when "v"
      system "vim #{file_name}"
    when "l"
-     links file_name
+     links(file_name) || edit(file_name)
    when "q"  
      abort
    when "m"  
@@ -185,12 +185,14 @@ def links_sub(links)
   if links.size > 1
     puts
     links.each_with_index do |link, i|
-      title = /\[[\s\w]*\]/.match(link).to_s.cyan
+      title = /\[[\.\/\s\w]*\]/.match(link).to_s.cyan
       title ||= /http[\w]*/.match(link).to_s.cyan
-      # title ||= link.split("](").first.gsub('[','').cyan
       puts "[#{i.to_s.magenta}] #{title}"
     end
-    opt = Lib::Util.ask("which? none:q")
+    opt = Lib::Util.ask_no_abort("which? none:q")
+    if !opt
+      return false
+    end
     unless Lib::Util.num?(opt)
       return links_sub(links.select{|link| link.downcase.include?(opt) })
     end
@@ -205,7 +207,7 @@ def links(file)
     Lib::Util.http(link) || Lib::Util.is_link?(link) 
   end
   link = links_sub(links)
-  link ||= ""
+  return false unless link 
   http = Lib::Util.http(link)
   if http
     puts "calling... #{http}"

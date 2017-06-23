@@ -15,6 +15,17 @@ module Lib
       end
     end
 
+    def self.ask_no_abort(message, debug = nil)
+      if debug
+        debug
+      else
+        print "[#{message}] "
+        option = $stdin.gets.chomp.downcase
+        return false if option == "q"
+        option
+      end
+    end
+
     def self.assure_file(file)
       unless File.exist?(file)
         f = File.open(file, "w")
@@ -56,7 +67,7 @@ module Lib
     end
 
     def self.is_link?(line)
-      regex_okay?(/^\[[\w\s]*\]\([\s\w.\/ ]*\)/, line.strip)
+      regex_okay?(/^\[[\w\s\.\/]*\]\([\s\w.\/ ]*\)/, line.strip)
     end
 
     #

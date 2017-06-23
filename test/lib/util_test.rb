@@ -9,11 +9,11 @@ class Lib::UtilTest < Minitest::Test
   end
 
   def test_nasty_format?
-    assert nasty_format?("oppai.xlsx")    
-    assert nasty_format?("xxvideo.ahan.xls")    
-    assert nasty_format?("korakora.docx")    
-    refute nasty_format?("sigoto-chu.dc")    
-    refute nasty_format?("yanke.txt")    
+    assert Lib::Util.nasty_format?("oppai.xlsx")    
+    assert Lib::Util.nasty_format?("xxvideo.ahan.xls")    
+    assert Lib::Util.nasty_format?("korakora.docx")    
+    refute Lib::Util.nasty_format?("sigoto-chu.dc")    
+    refute Lib::Util.nasty_format?("yanke.txt")    
   end
 
   def test_parse_link
@@ -179,11 +179,11 @@ class Lib::UtilTest < Minitest::Test
   end
 
   def test_vim_prone_format?
-    assert vim_prone_format?("oppai.txt")    
-    assert vim_prone_format?("puriketsu.csv")    
-    refute vim_prone_format?("puriketsu.md")    
-    refute vim_prone_format?("puriketsu")    
-    refute vim_prone_format?("puriketsu.xlsx")    
+    assert Lib::Util.vim_prone_format?("oppai.txt")    
+    assert Lib::Util.vim_prone_format?("puriketsu.csv")    
+    refute Lib::Util.vim_prone_format?("puriketsu.md")    
+    refute Lib::Util.vim_prone_format?("puriketsu")    
+    refute Lib::Util.vim_prone_format?("puriketsu.xlsx")    
   end
 
   private
