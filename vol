@@ -186,7 +186,7 @@ def links_sub(links)
   if links.size > 1
     puts
     links.each_with_index do |link, i|
-      title = /\[[\.\/\s\w]*\]/.match(link).to_s.cyan
+      title = /\[[\d\.\/\s\w]*\]/.match(link).to_s.cyan
       title ||= /http[\w]*/.match(link).to_s.cyan
       puts "[#{i.to_s.magenta}] #{title}"
     end

@@ -63,11 +63,11 @@ module Lib
     end
 
     def self.image_link?(line)
-      regex_okay?(/!\[[\w\s]*\]\([\s\w.\/ ]*\)/, line.strip)
+      regex_okay?(/!\[[\w\d\s]*\]\([\d\s\w.\/ ]*\)/, line.strip)
     end
 
     def self.is_link?(line)
-      regex_okay?(/^\[[\w\s\.\/]*\]\([\s\w.\/ ]*\)/, line.strip)
+      regex_okay?(/^\[[\w\d\s\.\/]*\]\([\d\s\w.\/ ]*\)/, line.strip)
     end
 
     #
@@ -144,8 +144,8 @@ module Lib
     end
 
     def self.parse_link(link)
-      title = /\[[\s\w\.\/]*\]/.match(link)
-      [title, /\([\s\w\.\/]*\)/.match(link).to_s.gsub("(", "").gsub(")", "")]
+      title = /\[[\d\s\w\.\/]*\]/.match(link)
+      [title, /\([\d\s\w\.\/]*\)/.match(link).to_s.gsub("(", "").gsub(")", "")]
     end
 
     def self.show(files)
