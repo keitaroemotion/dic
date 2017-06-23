@@ -201,7 +201,7 @@ def links_sub(links)
       end  
     end
     opt = Lib::Util.ask_no_abort("which? none:q")
-    if !opt
+    if !opt || opt == ""
       return false
     end
     unless Lib::Util.num?(opt)
