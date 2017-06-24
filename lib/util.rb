@@ -70,6 +70,12 @@ module Lib
       regex_okay?(/^\[[\w\d\s\.\/]*\]\([\d\s\w.\/ ]*\)/, line.strip)
     end
 
+    def self.md_image_link(line, root, shelf)
+      tokens = line.split("](")
+      ("!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(root, ""))
+        .gsub(shelf + "/", "").gsub("!!","!")
+    end
+
     #
     # TODO:  this part is too verbose and boilerplate. needs to be refactored
     #

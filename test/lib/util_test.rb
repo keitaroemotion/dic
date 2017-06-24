@@ -108,6 +108,13 @@ class Lib::UtilTest < Minitest::Test
     refute @util.is_link?("[oppai]/boinboin/bakunyu/gyaru")
   end
 
+  def test_md_image_link
+   root  = "/usr/local/etc/vol"
+   shelf = "/usr/local/etc/vol/raw"
+   link  = "[aaa](/usr/local/etc/raw/image/oppai.jpg)"  
+   assert_equal "![aaa](/usr/local/etc/raw/image/oppai.jpg)", @util.md_image_link(link, root, shelf)
+  end
+
   def test_push_as_link
     dir  = "./etc/moomin_valley"
 
