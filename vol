@@ -10,15 +10,11 @@ DOC_SHELF_P  = "/usr/local/etc/#{APP_NAME}/pages"
 
 args = ARGV
 
-def pict_link?(line)
- Lib::Util.image_link?(line) && !line.include?("http")
-end
-
 def convert(file)
   rewrite(
     file:  file,
     lines: File.open(file, "r").map do |line|
-             pict_link?(line) ? Lib::Util.md_image_link(line, ROOT, DOC_SHELF) : line
+             Lib::Util.pict_link?(line) ? Lib::Util.md_image_link(line, ROOT, DOC_SHELF) : line
            end
   )
 end

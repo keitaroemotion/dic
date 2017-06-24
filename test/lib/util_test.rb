@@ -115,6 +115,11 @@ class Lib::UtilTest < Minitest::Test
    assert_equal "![aaa](/usr/local/etc/raw/image/oppai.jpg)", @util.md_image_link(link, root, shelf)
   end
 
+  def test_pict_link?
+    assert @util.pict_link?("![image](/aaa/bbb/ccc.jpg)")
+    refute @util.pict_link?("[image](/aaa/bbb/ccc.jpg)")
+  end
+
   def test_push_as_link
     dir  = "./etc/moomin_valley"
 

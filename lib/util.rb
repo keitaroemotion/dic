@@ -76,6 +76,10 @@ module Lib
         .gsub(shelf + "/", "").gsub("!!","!")
     end
 
+    def self.pict_link?(line)
+     Lib::Util.image_link?(line) && !line.include?("http")
+    end
+
     #
     # TODO:  this part is too verbose and boilerplate. needs to be refactored
     #
