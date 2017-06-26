@@ -7,19 +7,20 @@ APP_NAME     = "vol"
 ROOT         = "/usr/local/etc/#{APP_NAME}"
 DOC_SHELF    = "/usr/local/etc/#{APP_NAME}/raw"
 DOC_SHELF_P  = "/usr/local/etc/#{APP_NAME}/pages"
+$history = []
 
 args = ARGV
 
 def convert(file)
   rewrite(
-    file:  file,
-    lines: File.open(file, "r").map do |line|
+    file,
+    File.open(file, "r").map do |line|
              Lib::Util.pict_link?(line) ? Lib::Util.md_image_link(line, ROOT, DOC_SHELF) : line
            end
   )
 end
 
-def rewrite(file:, lines:)
+def rewrite(file, lines)
   def trim_local_urls(line)
     line.gsub(DOC_SHELF + "/", "")
         .gsub(DOC_SHELF_P + "/", "")
@@ -74,6 +75,12 @@ def read_scr(lines, page)
 end
 
 def edit(file_name, redirection=true)
+  if $history.size > 10
+    $history = $history[5..10]
+  end
+  if !$history.include?(file_name)
+    $history.push file_name
+  end  
   red = false 
   if redirection
     red = redirect(File.read(file_name).split("\n")) if File.exist?(file_name)
@@ -87,6 +94,7 @@ def edit(file_name, redirection=true)
   print "[m: markup, v: vim, l: links sc: scroll]\n" + 
         "[c: cat /: search h: head d: delete]\n" +
         "[w: web u:update + open uu: update]\n" +
+        "[pr: go to previous page]\n" +
         "[p: push to another page]\n" + 
         "[b: bring another page]\n" + 
         "[pb: mutual links]" + 
@@ -101,6 +109,12 @@ def edit(file_name, redirection=true)
     system "head #{file_name}"
     puts "=========================================".green
     puts 
+  when "pr"  
+    $history.each_with_index do |page, i|
+      puts "[#{i}] #{page}"
+    end
+    print "> "
+    return edit($history[$stdin.gets.chomp.to_i])
   when "mv"
     new_name = Lib::Util.ask("new name:")
     dest = File.join(DOC_SHELF, new_name) + ".md"
