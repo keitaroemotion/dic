@@ -124,7 +124,7 @@ module Lib
     end
 
     def self.markdown_link_format?(link)
-      regex_okay?(/^\[[\w\s]*\]\([\w\s.\/ ]*\)/, link)
+      regex_okay?(/^\[[\w\.\s]*\]\([\w\s.\/ ]*\)/, link)
     end
 
     def self.match?(regestr, target_string)
