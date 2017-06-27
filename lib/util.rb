@@ -71,9 +71,13 @@ module Lib
     end
 
     def self.md_image_link(line, root, shelf)
-      tokens = line.split("](")
-      ("!" + tokens[0].chomp + "](" + tokens[1..-1].join.gsub(root, ""))
-        .gsub(shelf + "/", "").gsub("!!","!")
+      match = /images\/.*\.(jpg|png|gif|jpeg|JPG)[^\)]*/.match(line).to_s.split(" ")
+      tail = " />"
+      if /^\d*$/.match(match[1])
+        tail = " height=#{match[1]} #{tail}"
+      end
+      puts "<img src=#{match[0]} #{tail}"
+      "<img src=#{match[0]} #{tail}"
     end
 
     def self.pict_link?(line)

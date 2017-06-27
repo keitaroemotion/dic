@@ -65,6 +65,13 @@ $http://....
 If the script refer to this .md page it just directly jump to the webpage.
 
 
+# Size for the embedded images
+you can set the size of the embedded image by adding its height pixels as follows:
+
+```
+![image](/usr/local/etc/vol/pages/images/20176271498546400.jpg 600)
+```
+
 # URL Configuration
 
 Once you pushed your **wiki repository** in your **github repository**, then you have to edit the config.
