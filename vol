@@ -292,33 +292,44 @@ end
 
 def set_image
   t = Time.now
-  name = "#{t.year}#{t.month}#{t.day}#{t.to_f.to_i}"
   files = extract_files(key_words)
   stop "you need image file.", files.size == 0
-  file = fit(files.first)
-  ARGV.delete(file)
-  extension = file.split(".").last
 
-  mkdir_docshelfs 
-
-  target  = fit(image_path(DOC_SHELF_P, name, extension))
-
-  def validate_file(file)
+   def validate_file(file)
     unless File.exist?(file)
       abort "FILE ABSENT: #{file}".red
     end
   end
 
-  Lib::Util.copy file, target
+  if File.directory?(files.first)
+    files = Dir["#{files.first}/*"]
+  end
 
-  validate_file target
-  fin_dest = fit(image_path(DOC_SHELF, name, extension))
+  markdowns = files.map{|file| fit(file) }.map do |file|
+    xxx = /[^\s\\]*/
+      .match(File.basename(file)
+      .gsub("\\", "")
+      .gsub(" ", "").to_s).to_s.gsub("pdf.pdf", "pdf")
+    name = "#{t.year}#{t.month}#{t.day}#{t.to_f.to_i}#{xxx}"
+    ARGV.delete(file)
+    extension = file.split(".").last
 
-  Lib::Util.copy target, fin_dest
+    mkdir_docshelfs 
 
-  validate_file fin_dest
+    target  = fit(image_path(DOC_SHELF_P, name, extension))
 
-  markdown = "![image](#{target})"
+    Lib::Util.copy file, target
+
+    validate_file target
+    fin_dest = fit(image_path(DOC_SHELF, name, extension))
+
+    Lib::Util.copy target, fin_dest
+    validate_file fin_dest
+
+    "![#{xxx}](#{target})"
+  end  
+
+  markdown = markdowns.join("\n")
   system("echo \"#{markdown}\" | pbcopy")
   puts "\n#{markdown}\n\n"
 end  
