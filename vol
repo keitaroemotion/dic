@@ -211,6 +211,7 @@ def links_sub(links)
       return false
     end
     if /^[\d]*\.\.[\d]*$/.match(opt)
+      opt = opt.gsub(/^\-\s/, "")
       osi = opt.split("..").map{|i| i.to_i }
       return links[osi[0]-1..osi[1]-1]
     end
@@ -274,7 +275,7 @@ def links(file, particles)
 end
 
 def make_target(link)
-  "#{DOC_SHELF}/#{File.basename((link || "").gsub('.md', '')).chomp}.md"
+  "#{DOC_SHELF}/#{File.basename((link || "").gsub('.md', '')).chomp}.md".gsub(/\)/, "")
 end
 
 def all_files
@@ -330,6 +331,7 @@ def set_image
       .gsub(" ", "").to_s).to_s
       .gsub("pdf.pdf", "pdf")
       .gsub("jpg.jpg", ".jpg")
+      .gsub("xlsx.xlsx", ".xlsx")
     name = "#{t.year}#{t.month}#{t.day}#{t.to_f.to_i}#{i}#{xxx}"
     ARGV.delete(file)
     extension = file.split(".").last

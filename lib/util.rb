@@ -67,7 +67,7 @@ module Lib
     end
 
     def self.is_link?(line)
-      regex_okay?(/^\[[\w\d\s\.\/]*\]\([\d\s\w.\/ ]*\)/, line.strip)
+      regex_okay?(/\[[\w\d\s\:\.\/]*\]\([\d\s\w.\/ ]*\)/, line.strip)
     end
 
     def self.md_image_link(line, root, shelf)
@@ -100,7 +100,7 @@ module Lib
         content = "#{content}\n# Link\n"
       end
       f = File.open(target_file, "w")
-      content += "\n- [#{file_name}](#{File.join(wiki_dir, file_name)}.md)"
+      content += "- [#{file_name}](#{File.join(wiki_dir, file_name)}.md)"
       f.puts(content)
       f.close
       File.open(target_file, "r").each do |line|
@@ -158,8 +158,8 @@ module Lib
     end
 
     def self.parse_link(link)
-      title = /\[[\-\d\s\w\.\/]*\]/.match(link)
-      [title.to_s, /\([\-\d\s\w\.\/]*\)/.match(link).to_s.gsub("(", "").gsub(")", "")]
+      title = /\[[\:_\-\d\s\w\.\/]*\]/.match(link.gsub(/\-\s/, ""))
+      [title.to_s, /\([_\-\d\s\w\.\/]*\)/.match(link).to_s.gsub("(", "").gsub(")", "")]
     end
 
     def self.show(files)
