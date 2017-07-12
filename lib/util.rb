@@ -76,7 +76,6 @@ module Lib
       if /^\d*$/.match(match[1])
         tail = " height=#{match[1]} #{tail}"
       end
-      puts "<img src=#{match[0]} #{tail}"
       "<img src=#{match[0]} #{tail}"
     end
 

@@ -424,6 +424,8 @@ when "-g"
   end.each do |file|
     puts "[" + File.basename(file).gsub(".md", "").cyan + "]"
   end
+when "--clean"
+  system "/usr/local/etc/vol/raw/*[^.md]"
 else
   system("mkdir -p #{DOC_SHELF}") unless File.directory?(DOC_SHELF)
   if /^\/.*\/$/.match(key_words.first) 
