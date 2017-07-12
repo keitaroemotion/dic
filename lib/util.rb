@@ -63,7 +63,7 @@ module Lib
     end
 
     def self.image_link?(line)
-      regex_okay?(/!\[[\w\d\s]*\]\([\d\s\w.\/ ]*\)/, line.strip)
+      regex_okay?(/!\[[\w\d\s]*\]\([\-\d\s\w.\/ ]*\)/, line.strip)
     end
 
     def self.is_link?(line)
