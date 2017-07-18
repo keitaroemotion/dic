@@ -71,16 +71,12 @@ module Lib
     end
 
     def self.match_image_pattern(line)
-      /images\/.*(\.jpg|\.png|\.gif|\.jpeg|\.JPG)*.*[\)]/.match(line).to_s
+      /images\/.*(\.jpg|\.png|\.gif|\.jpeg|\.JPG)*[^\)]+/.match(line).to_s
     end
-
+   
     def self.md_image_link(line, root, shelf)
-      match = match_image_pattern(line).split(" ")
-      tail = " />"
-      if /^\d*$/.match(match[1])
-        tail = " height=#{match[1]} #{tail}"
-      end
-      "<img src=#{match[0]} #{tail}"
+      pre, post = match_image_pattern(line).split(" ")
+      "<img src=#{pre} #{/^\d*$/ =~ post ? ' height=#{post}' : ""}/>"
     end
 
     def self.pict_link?(line)

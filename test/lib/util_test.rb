@@ -109,14 +109,17 @@ class Lib::UtilTest < Minitest::Test
   end
 
   def test_match_image_pattern
-    assert  @util.match_image_pattern("![matrix.png](images/201771815003690881matrix.png.png 500)")
+    assert_equal(
+      "images/201771815003690881matrix.png.png 500",
+      @util.match_image_pattern("![matrix.png](images/201771815003690881matrix.png.png 500)")
+    )
   end
 
   def test_md_image_link
    root  = "/usr/local/etc/vol"
    shelf = "/usr/local/etc/vol/raw"
-   link  = "[aaa](/usr/local/etc/raw/image/oppai.jpg)"  
-   assert_equal "![aaa](/usr/local/etc/raw/image/oppai.jpg)", @util.md_image_link(link, root, shelf)
+   link  = "[aaa](/usr/local/etc/raw/images/oppai.jpg)"  
+   assert_equal "<img src=images/oppai.jpg />", @util.md_image_link(link, root, shelf)
   end
 
   def test_pict_link?
