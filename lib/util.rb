@@ -91,12 +91,7 @@ module Lib
     # TODO:  this part is too verbose and boilerplate. needs to be refactored
     #
     def self.push_as_link(wiki_dir, file_name, dest = nil, debug = nil)
-      file_name_md = ""
-      if dest
-        file_name_md = dest + ".md"
-      else
-        file_name_md = ask("dest:", debug) + ".md"
-      end
+      file_name_md = (dest || ask("dest:", debug)) + ".md"
       target_file = assure_file(File.join(wiki_dir, file_name_md))
       content = File.read(target_file)
       unless regex_okay?(/[\\#]\s*[Ll]ink/, content)
