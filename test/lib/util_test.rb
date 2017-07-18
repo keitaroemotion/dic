@@ -120,6 +120,8 @@ class Lib::UtilTest < Minitest::Test
    shelf = "/usr/local/etc/vol/raw"
    link  = "[aaa](/usr/local/etc/raw/images/oppai.jpg)"  
    assert_equal "<img src=images/oppai.jpg />", @util.md_image_link(link, root, shelf)
+   link_with_height = "[aaa](/usr/local/etc/raw/images/oppai.jpg 500)"  
+   assert_equal "<img src=images/oppai.jpg height=500/>", @util.md_image_link(link_with_height, root, shelf)
   end
 
   def test_pict_link?

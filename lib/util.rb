@@ -76,7 +76,11 @@ module Lib
    
     def self.md_image_link(line, root, shelf)
       pre, post = match_image_pattern(line).split(" ")
-      "<img src=#{pre} #{/^\d*$/ =~ post ? ' height=#{post}' : ""}/>"
+      "<img src=#{pre} #{/^\d*$/ =~ post ? height(post) : ""}/>"
+    end
+
+    def self.height(post)
+      "height=#{post}"
     end
 
     def self.pict_link?(line)
