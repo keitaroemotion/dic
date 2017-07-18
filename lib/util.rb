@@ -67,11 +67,15 @@ module Lib
     end
 
     def self.is_link?(line)
-      regex_okay?(/\[[\w\d\s\:\.\/]*\]\([\d\s\w.\/ ]*\)/, line.strip)
+      /^\[[^\[\]]+\]\([^\(\)]+\)/ =~ line.strip
+    end
+
+    def self.match_image_pattern(line)
+      /images\/.*(\.jpg|\.png|\.gif|\.jpeg|\.JPG)*.*[\)]/.match(line).to_s
     end
 
     def self.md_image_link(line, root, shelf)
-      match = /images\/.*\.(jpg|png|gif|jpeg|JPG)[^\)]*/.match(line).to_s.split(" ")
+      match = match_image_pattern(line).split(" ")
       tail = " />"
       if /^\d*$/.match(match[1])
         tail = " height=#{match[1]} #{tail}"

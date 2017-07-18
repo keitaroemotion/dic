@@ -108,6 +108,10 @@ class Lib::UtilTest < Minitest::Test
     refute @util.is_link?("[oppai]/boinboin/bakunyu/gyaru")
   end
 
+  def test_match_image_pattern
+    assert  @util.match_image_pattern("![matrix.png](images/201771815003690881matrix.png.png 500)")
+  end
+
   def test_md_image_link
    root  = "/usr/local/etc/vol"
    shelf = "/usr/local/etc/vol/raw"
