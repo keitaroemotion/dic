@@ -92,7 +92,7 @@ def edit(file_name, redirection=true)
   print "[New:] ".magenta unless File.exist?(file_name)
   puts "#{name.green}\n\n"
   print "[m: markup, v: vim, l: links sc: scroll]\n" + 
-        "[c: cat /: search h: head d: delete]\n" +
+        "[c: cat /[keyword]: search h: head d: delete]\n" +
         "[w: web u:update + open uu: update]\n" +
         "[pr: go to previous page]\n" +
         "[p: push to another page]\n" + 
