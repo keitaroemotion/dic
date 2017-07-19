@@ -15,8 +15,8 @@ def convert(file)
   rewrite(
     file,
     File.open(file, "r").map do |line|
-             Lib::Util.pict_link?(line) ? Lib::Util.md_image_link(line, ROOT, DOC_SHELF) : line
-           end
+      Lib::Util.md_image_link(line, ROOT, DOC_SHELF)
+    end
   )
 end
 

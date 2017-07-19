@@ -71,12 +71,16 @@ module Lib
     end
 
     def self.match_image_pattern(line)
-      /images\/.*(\.jpg|\.png|\.gif|\.jpeg|\.JPG)*[^\)]+/.match(line).to_s
+      /images\/.*(\.jpg|\.png|\.gif|\.jpeg|\.JPG)*[^\)]+/
+        .match(line)
+        .to_s
+        .gsub(")", "")
     end
    
     def self.md_image_link(line, root, shelf)
       pre, post = match_image_pattern(line).split(" ")
-      "<img src=#{pre} #{/^\d*$/ =~ post ? height(post) : ""}/>"
+      puts "#{pre} #{post}" if pre && post
+      pre ? "<img src=#{pre} #{/^\d*$/ =~ post ? height(post) : ""}/>" : line
     end
 
     def self.height(post)
