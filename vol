@@ -363,7 +363,7 @@ end
 
 def update_wiki
   do_convert
-  system "cd #{ROOT};git add #{ROOT};git commit -m \"page updated\";git push origin master"
+  system "cd #{ROOT};git add #{ROOT};git commit -m \"page updated\";git pull origin master;git push origin master"
 end
 
 def files(dir)
