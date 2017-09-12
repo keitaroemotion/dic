@@ -3,24 +3,31 @@
 require "colorize"
 
 def raw
-  "#{etc}/vol/raw"
+  "#{root}/raw"
 end
 
 def pages
-  "#{etc}/vol/pages"
+  "#{root}/pages"
 end
 
 def etc
  "/usr/local/etc"
 end
 
+def root
+ "#{etc}/vol"
+end
+
 def dont_have(text)
   args_negations.select {|neg| text.include?(neg) }.size == 0
 end
 
-def md_files_all
-  files_all
-  .select { |file| /\.md/ =~ file }
+def md_files_raw_all
+  files_raw_all.select { |file| /\.md/ =~ file }
+end
+
+def md_files_page_all
+  files_page_all.select { |file| /\.md/ =~ file }
 end
 
 def text_matches_pattern?(file, regex)
@@ -45,7 +52,7 @@ end
 def grep
   _regex = regex
   puts "regex: #{_regex}".yellow
-  md_files_all
+  md_files_raw_all
     .select { |file| text_matches_pattern?(file, _regex) }
     .each   { |file| show_match_details(file, _regex)    }
 end
@@ -62,8 +69,12 @@ def args_values
   ARGV.select{|a| /^[^\-\^]/ =~ a }
 end
 
-def files_all
+def files_raw_all
   Dir["#{raw}/*"]
+end
+
+def files_page_all
+  Dir["#{pages}/*"]
 end
 
 def file_read(file)
@@ -91,18 +102,128 @@ def match?(text, args = nil)
   regex(args) =~ text && dont_have(text)
 end
 
-def ask_input(msg = "[,{@}pa/v]> ")
+def ask_input(msg = "[,{@}pa/vwu]> ")
   print msg
   $stdin.gets.chomp
 end
 
 def get_files(files)
-  files.size == 0 ? md_files_all : files
+  files.size == 0 ? md_files_raw_all : files
 end
 
 def vim(files, size)
   size = 0 unless size < files.size
   system "vim #{files[size - 1]}"
+end
+
+def config
+  confs = File.open("#{etc}/vol/.config", "r").map do |line|
+    line.split(" ")
+  end.flatten
+  Hash[*confs]
+end
+
+def image_regex
+  /images\/.*(\.jpg|\.png|\.gif|\.jpeg|\.JPG)*[^\)]+/
+end
+
+def image(line)
+  image_regex
+    .match(line)
+    .to_s
+    .gsub(")", "")
+    .split(" ")
+end
+
+def height(post)
+  "height=#{post}"
+end
+
+def embedded_image_link(line)
+  pre, post = image(line)
+  puts "#{pre} #{post}" if pre && post
+  pre ? "<img src=#{pre} #{/^\d*$/ =~ post ? height(post) : ""}/>" : line
+end
+
+def file_overwrite(file, content)
+  f = File.open(File.join(pages, File.basename(file)), "w")
+  f.puts content
+  f.close
+end
+
+def convert_raw(file)
+  content = file_read(file)
+  content
+    .gsub("#{pages}/", "")
+    .gsub("#{raw}/", "")
+    .gsub("#{root}/", "")
+  file_overwrite(file, content)    
+end
+
+def convert_page(file)
+  content = file_read_lines(file).map { |line|
+    image_regex =~ line ? embedded_image_link(line) : line
+  }
+  file_overwrite(file, content)
+end
+
+def update_wiki
+  files_raw_all  
+    .select { |file| File.file?(file)     } # maybe we dont need this
+    .each   { |file| convert_raw(file)    }
+
+  system ([
+    "cd #{root}",
+    "cp -r #{raw}/* #{pages}",
+  ].join(";"))
+
+  files_page_all
+    .select { |file| File.file?(file)   } # maybe we dont need this
+    .each   { |file| convert_page(file) }
+
+  system ("cd #{root}; git diff #{root}") 
+  abort if ask_input("ok?[Y/n]").downcase == "n"
+
+  system ([
+    "cd #{root}",
+    "git add #{root}",
+    "git commit -m \"page updated\"",
+    "git pull origin master",
+    "git push origin master",
+  ].join(";"))
+end
+
+def main_op(input, files, prev_files, args)
+  if /^[u\s]+$/ =~ input
+    update_wiki
+  elsif /^[w\s]+$/ =~ input
+    size = input.strip.size
+    size = 0 unless size < files.size
+    url = config["url"]
+            .gsub("$", files[size - 1])
+            .gsub(raw, "")
+            .gsub("md.md", "md")
+    system "open #{url}"   
+  elsif /^q\s*$/ =~ input
+    abort
+  elsif /^[\/]/ =~ input
+    files = []; args  = input[1..-1].split(" ")
+  elsif /^[v]+\s*$/ =~ input
+    vim(files, input.strip.size)
+  elsif /^[v]+\s*\d+$/ =~ input
+    vim(files, input.gsub("v", "").strip.to_i)
+  elsif /^[a\s]+$/ =~ input
+    files = []; args  = []
+  elsif /^[p\s]+$/ =~ input  
+    files = prev_files
+  elsif /^[\d\s]+$/ =~ input
+    files = [files[input.to_i - 1]]
+  elsif /^[\,\s]+$/ =~ input 
+    files = [files[input.size - 1]]
+  elsif /^\w+$/ =~ input
+    args = input.split(" ")
+  end 
+  [files, prev_files, args]
 end
 
 def enlist(files, prev_files, args)
@@ -112,29 +233,7 @@ def enlist(files, prev_files, args)
     puts paint(base_name(file), args)
   }
 
-  input = ask_input
-  
-  if /^q+\s*$/ =~ input
-    abort
-  elsif /^[\/]/ =~ input
-    files = []
-    args  = input[1..-1].split(" ")
-  elsif /^[v]+\s*$/ =~ input
-    vim(files, input.strip.size)
-  elsif /^[v]+\s*\d+$/ =~ input
-    vim(files, input.gsub("v", "").strip.to_i)
-  elsif /^[a\s]+$/ =~ input
-    files = []
-    args  = []
-  elsif /^[p\s]+$/ =~ input  
-    files = prev_files
-  elsif /^[\d\s]+$/ =~ input
-    files = [files[input.to_i - 1]]
-  elsif /^[\,\s]+$/ =~ input 
-    files = [files[input.size - 1]]
-  elsif /^\w+$/ =~ input
-    args = input.split(" ")
-  end  
+  files, prev_files, args = main_op(ask_input, files, prev_files, args)
   enlist(files, prev_files, args)
 end
 
@@ -144,5 +243,5 @@ case option
 when "-g"
   grep
 else
-  enlist(md_files_all, md_files_all, nil)
+  enlist(md_files_raw_all, md_files_raw_all, nil)
 end
