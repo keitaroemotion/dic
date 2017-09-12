@@ -216,22 +216,24 @@ def open_url(input, files)
 end
 
 def enlist_links(file, links = [])
+  return if file.nil?
   if links.size == 0
     links = file_read_lines(file)
       .select { |line| link?(line) }
       .map    { |line|
-        puts line
         /(\/usr\/local\/|http)[^\s\)\(]+/.match(line.strip).to_s.split(" ").first 
       }
       .compact
+      .uniq
   end    
   puts "#{File.basename(file)}\n".cyan
-  puts links
+  links.each_with_index { |l, i| puts "[#{i + 1}] #{l}" }
   input = ask_input(",{@}p>").strip
   abort if input == "q".downcase.strip
 
   if /^[\,\s]+$/ =~ input
-    input = "," unless input.size < links.size
+    puts "#{input.size} < #{links.size}".magenta
+    input = "," unless input.size - 1 < links.size
     system "open #{links[input.size - 1]}"
   elsif /^[p\s]+$/ =~ input  
   else
