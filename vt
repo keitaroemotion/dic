@@ -167,23 +167,7 @@ def convert_page(file)
   file_overwrite(file, content)
 end
 
-def update_wiki
-  files_raw_all  
-    .select { |file| File.file?(file)     } # maybe we dont need this
-    .each   { |file| convert_raw(file)    }
-
-  system ([
-    "cd #{root}",
-    "cp -r #{raw}/* #{pages}",
-  ].join(";"))
-
-  files_page_all
-    .select { |file| File.file?(file)   } # maybe we dont need this
-    .each   { |file| convert_page(file) }
-
-  system ("cd #{root}; git diff #{root}") 
-  abort if ask_input("ok?[Y/n]").downcase == "n"
-
+def save_and_push_into_git_repository
   system ([
     "cd #{root}",
     "git add #{root}",
@@ -193,9 +177,31 @@ def update_wiki
   ].join(";"))
 end
 
+def copy_from_raw_to_pages
+  system ([
+    "cd #{root}",
+    "cp -r #{raw}/* #{pages}",
+  ].join(";"))
+end
+
+def files_only(files)
+  files.select { |file| File.file?(file) }
+end
+
+def update_git_repository
+  files_only(files_raw_all).each { |file| convert_raw(file) }
+  copy_from_raw_to_pages
+
+  files_only(files_page_all).each   { |file| convert_page(file) }
+  system ("cd #{root}; git diff #{root}") 
+  abort if ask_input("ok?[Y/n]").downcase == "n"
+
+  save_and_push_into_git_repository
+end
+
 def main_op(input, files, prev_files, args)
   if /^[u\s]+$/ =~ input
-    update_wiki
+    update_git_repository
   elsif /^[w\s]+$/ =~ input
     size = input.strip.size
     size = 0 unless size < files.size
