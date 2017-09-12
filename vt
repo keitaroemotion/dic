@@ -91,13 +91,18 @@ def match?(text, args = nil)
   regex(args) =~ text && dont_have(text)
 end
 
-def ask_input(msg = "[,{@}pa/]> ")
+def ask_input(msg = "[,{@}pa/v]> ")
   print msg
   $stdin.gets.chomp
 end
 
 def get_files(files)
   files.size == 0 ? md_files_all : files
+end
+
+def vim(files, size)
+  size = 0 unless size < files.size
+  system "vim #{files[size - 1]}"
 end
 
 def enlist(files, prev_files, args)
@@ -114,6 +119,10 @@ def enlist(files, prev_files, args)
   elsif /^[\/]/ =~ input
     files = []
     args  = input[1..-1].split(" ")
+  elsif /^[v]+\s*$/ =~ input
+    vim(files, input.strip.size)
+  elsif /^[v]+\s*\d+$/ =~ input
+    vim(files, input.gsub("v", "").strip.to_i)
   elsif /^[a\s]+$/ =~ input
     files = []
     args  = []
