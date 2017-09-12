@@ -212,15 +212,22 @@ def open_url(input, files)
 end
 
 def enlist_links(file, links = [])
-  links = file_read_lines(file).select { |line| link?(line) } if links.size == 0
+  if links.size == 0
+    links = file_read_lines(file)
+      .select { |line| link?(line) }
+      .map    { |line|
+        /^(\/usr\/local\/|http)[^\s]+/.match(line.strip).to_s.split(" ").first 
+      }
+      .compact
+  end    
   puts "#{File.basename(file)}\n".cyan
   puts links
-  input = ask_input(",{@}p>")
+  input = ask_input(",{@}p>").strip
   abort if input == "q".downcase.strip
 
   if /^[\,\s]+$/ =~ input
-    input = "," unless input.strip.size < links.size
-    open_url(input, [file])
+    input = "," unless input.size < links.size
+    system "open #{links[input.size - 1]}"
   elsif /^[p\s]+$/ =~ input  
   else
     r = regex(input.split(" "))
