@@ -24,23 +24,30 @@ def md_files_all
 end
 
 def text_matches_pattern?(file, regex)
-  file_content = file_read(file) 
-  regex =~ file_content && dont_have(file_content)
+  match?(file_read(file))
+end
+
+def base_name(file)
+  file.gsub("#{raw}/", "").gsub(".md", "")
 end
 
 def show_match_details(file, regex)
-  puts "[file] " + file.gsub("#{raw}/", "").gsub(".md", "")
-  file_read(file).split("\n").each do |line|
+  puts "[file] " + base_name(file) 
+  file_read_lines(file).each do |line|
     !(regex =~ line) || puts("... #{paint(line, args_values)} ...\n")
   end  
 end
 
+def regex(args = nil)
+  Regexp.new((args || args_values).join(".+"))
+end
+
 def grep
-  regex = Regexp.new(args_values.join(".+"))
-  puts "regex: #{regex}".yellow
+  _regex = regex
+  puts "regex: #{_regex}".yellow
   md_files_all
-    .select { |file| text_matches_pattern?(file, regex) }
-    .each   { |file| show_match_details(file, regex)    }
+    .select { |file| text_matches_pattern?(file, _regex) }
+    .each   { |file| show_match_details(file, _regex)    }
 end
 
 def args_negations
@@ -63,11 +70,63 @@ def file_read(file)
   File.read(file) 
 end
 
-def paint(text, key_words)
-  key_words.each do |key_word|
+def file_read_lines(file)
+  File.read(file).split("\n") 
+end
+
+def paint(text, key_words = nil)
+  (key_words || args_values).each do |key_word|
     text = text.gsub(key_word, key_word.green)
   end
   text
+end
+
+def links(file)
+  file_read_lines(file).select { |line|
+    /^[\s\-]+\[[^\[\]]*\]\([^\(\)]+\)/ =~ line || /http[s]*:\/\// =~ line
+  }
+end
+
+def match?(text, args = nil)
+  regex(args) =~ text && dont_have(text)
+end
+
+def ask_input(msg = "[,{@}pa/]> ")
+  print msg
+  $stdin.gets.chomp
+end
+
+def get_files(files)
+  files.size == 0 ? md_files_all : files
+end
+
+def enlist(files, prev_files, args)
+  files = get_files(files).select { |file| match?(file, args) }
+  files.each_with_index { |file, i|
+    print "[#{i+1}] "
+    puts paint(base_name(file), args)
+  }
+
+  input = ask_input
+  
+  if /^q+\s*$/ =~ input
+    abort
+  elsif /^[\/]/ =~ input
+    files = []
+    args  = input[1..-1].split(" ")
+  elsif /^[a\s]+$/ =~ input
+    files = []
+    args  = []
+  elsif /^[p\s]+$/ =~ input  
+    files = prev_files
+  elsif /^[\d\s]+$/ =~ input
+    files = [files[input.to_i - 1]]
+  elsif /^[\,\s]+$/ =~ input 
+    files = [files[input.size - 1]]
+  elsif /^\w+$/ =~ input
+    args = input.split(" ")
+  end  
+  enlist(files, prev_files, args)
 end
 
 option = args_options.first
@@ -75,4 +134,6 @@ option = args_options.first
 case option
 when "-g"
   grep
+else
+  enlist(md_files_all, md_files_all, nil)
 end
