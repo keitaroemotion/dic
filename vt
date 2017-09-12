@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+require "colorize"
+
+def raw
+  "#{etc}/vol/raw"
+end
+
+def pages
+  "#{etc}/vol/pages"
+end
+
+def etc
+ "/usr/local/etc"
+end
+
+def dont_have(text)
+  args_negations.select {|neg| text.include?(neg) }.size == 0
+end
+
+def md_files_all
+  files_all
+  .select { |file| /\.md/ =~ file }
+end
+
+def text_matches_pattern?(file, regex)
+  file_content = file_read(file) 
+  regex =~ file_content && dont_have(file_content)
+end
+
+def show_match_details(file, regex)
+  puts "[file] " + file.gsub("#{raw}/", "").gsub(".md", "")
+  file_read(file).split("\n").each do |line|
+    !(regex =~ line) || puts("... #{paint(line, args_values)} ...\n")
+  end  
+end
+
+def grep
+  regex = Regexp.new(args_values.join(".+"))
+  puts "regex: #{regex}".yellow
+  md_files_all
+    .select { |file| text_matches_pattern?(file, regex) }
+    .each   { |file| show_match_details(file, regex)    }
+end
+
+def args_negations
+  ARGV.select{|a| /^[\^]/ =~ a }.map{|a| a[1..-1]}
+end
+
+def args_options
+  ARGV.select{|a| /^\-[^\^]+$/ =~ a }
+end
+
+def args_values
+  ARGV.select{|a| /^[^\-\^]/ =~ a }
+end
+
+def files_all
+  Dir["#{raw}/*"]
+end
+
+def file_read(file)
+  File.read(file) 
+end
+
+def paint(text, key_words)
+  key_words.each do |key_word|
+    text = text.gsub(key_word, key_word.green)
+  end
+  text
+end
+
+option = args_options.first
+
+case option
+when "-g"
+  grep
+end
