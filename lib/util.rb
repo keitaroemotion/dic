@@ -67,7 +67,7 @@ module Lib
     end
 
     def self.is_link?(line)
-      /^\[[^\[\]]+\]\([^\(\)]+\)/ =~ line.strip
+      /^[\-\s]*\[[^\[\]]+\]\([^\(\)]+\)/ =~ line.strip
     end
 
     def self.match_image_pattern(line)
