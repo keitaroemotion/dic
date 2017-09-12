@@ -93,10 +93,12 @@ def paint(text, key_words = nil)
   text
 end
 
+def link?(line)
+  /^[\s\-]+\[[^\[\]]*\]\([^\(\)]+\)/ =~ line || /http[s]*:\/\// =~ line
+end
+
 def links(file)
-  file_read_lines(file).select { |line|
-    /^[\s\-]+\[[^\[\]]*\]\([^\(\)]+\)/ =~ line || /http[s]*:\/\// =~ line
-  }
+  file_read_lines(file).select { |line| link?(line) }
 end
 
 def match?(text, args = nil)
@@ -209,12 +211,32 @@ def open_url(input, files)
   system "open #{url}"
 end
 
+def enlist_links(file, links = [])
+  links = file_read_lines(file).select { |line| link?(line) } if links.size == 0
+  puts "#{File.basename(file)}\n".cyan
+  puts links
+  input = ask_input(",{@}p>")
+  abort if input == "q".downcase.strip
+
+  if /^[\,\s]+$/ =~ input
+    input = "," unless input.strip.size < links.size
+    open_url(input, [file])
+  elsif /^[p\s]+$/ =~ input  
+  else
+    r = regex(input.split(" "))
+    enlist_links(file, links.select{ |l| r =~ l } )    
+  end
+end
+
 #
 # XXX add [pb] function
-# XXX add grep function on this window
 #
 def main_op(input, files, prev_files, args)
-  if /^[g\s]+/ =~ input
+  if /^[l\s]+/ =~ input
+    file_index = input.strip.size
+    file_index = 0 unless file_index < files.size
+    enlist_links(files[file_index - 1])
+  elsif /^[g\s]+/ =~ input
     files = grep(input[1..-1].strip.split(" ")); args = []
   elsif /^[u\s]+$/ =~ input
     update_git_repository
