@@ -40,7 +40,7 @@ def base_name(file)
 end
 
 def show_match_details(file, regex)
-  puts "[file] " + base_name(file) 
+  puts "\n[file] " + base_name(file) 
   file_read_lines(file).each do |line|
     !(regex =~ line) || puts("... #{paint(line, args_values)} ...\n")
   end  
@@ -96,7 +96,7 @@ def paint(text, key_words = nil)
 end
 
 def link?(line)
-  /^[\s\-]+\[[^\[\]]*\]\([^\(\)]+\)/ =~ line || /http[s]*:\/\// =~ line
+  /^[\s\-]*\[[^\[\]]*\]\([^\(\)]+\)/ =~ line || /http[s]*:\/\// =~ line
 end
 
 def links(file)
@@ -220,7 +220,8 @@ def enlist_links(file, links = [])
     links = file_read_lines(file)
       .select { |line| link?(line) }
       .map    { |line|
-        /^(\/usr\/local\/|http)[^\s]+/.match(line.strip).to_s.split(" ").first 
+        puts line
+        /(\/usr\/local\/|http)[^\s\)\(]+/.match(line.strip).to_s.split(" ").first 
       }
       .compact
   end    
