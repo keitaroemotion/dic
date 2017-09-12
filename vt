@@ -49,12 +49,13 @@ def regex(args = nil)
   Regexp.new((args || args_values).join(".+"))
 end
 
-def grep
-  _regex = regex
+def grep(args = nil)
+  _regex = regex(args)
   puts "regex: #{_regex}".yellow
-  md_files_raw_all
+  files = md_files_raw_all
     .select { |file| text_matches_pattern?(file, _regex) }
-    .each   { |file| show_match_details(file, _regex)    }
+  files.each { |file| show_match_details(file, _regex)   }
+  files
 end
 
 def args_negations
@@ -208,8 +209,14 @@ def open_url(input, files)
   system "open #{url}"
 end
 
+#
+# XXX add [pb] function
+# XXX add grep function on this window
+#
 def main_op(input, files, prev_files, args)
-  if /^[u\s]+$/ =~ input
+  if /^[g\s]+/ =~ input
+    files = grep(input[1..-1].strip.split(" ")); args = []
+  elsif /^[u\s]+$/ =~ input
     update_git_repository
   elsif /^[w\s]+$/ =~ input
     open_url(input, files)
