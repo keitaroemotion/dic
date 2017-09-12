@@ -141,7 +141,6 @@ end
 
 def embedded_image_link(line)
   pre, post = image(line)
-  puts "#{pre} #{post}" if pre && post
   pre ? "<img src=#{pre} #{/^\d*$/ =~ post ? height(post) : ""}/>" : line
 end
 
