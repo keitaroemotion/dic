@@ -198,17 +198,21 @@ def update_git_repository
   save_and_push_into_git_repository
 end
 
+def open_url(input, files)
+  size = input.strip.size
+  size = 0 unless size < files.size
+  url = config["url"]
+          .gsub("$", files[size - 1])
+          .gsub(raw, "")
+          .gsub("md.md", "md")
+  system "open #{url}"
+end
+
 def main_op(input, files, prev_files, args)
   if /^[u\s]+$/ =~ input
     update_git_repository
   elsif /^[w\s]+$/ =~ input
-    size = input.strip.size
-    size = 0 unless size < files.size
-    url = config["url"]
-            .gsub("$", files[size - 1])
-            .gsub(raw, "")
-            .gsub("md.md", "md")
-    system "open #{url}"   
+    open_url(input, files)
   elsif /^q\s*$/ =~ input
     abort
   elsif /^[\/]/ =~ input
