@@ -243,9 +243,7 @@ end
 
 #
 # XXX add function
-# XXX image addition [bulk]
 #
-
 def chapters(file)
   file_read_lines(file)
     .select { |line| /^[#]+/ =~ line }
