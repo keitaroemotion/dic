@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require "colorize"
+require "fileutils"
 
 def raw
   "#{root}/raw"
@@ -330,9 +331,39 @@ def enlist(files, prev_files, args)
   enlist(files, prev_files, args)
 end
 
+def uniq_prefix
+  sleep 1
+  t   = Time.now
+  sec = t.to_s.gsub(/[\+\:\-\s]/, "")
+  "#{t.year}#{t.month}#{t.day}#{sec}"
+end
+
+def escape(text)
+  text.gsub(" ", "\\ ")
+end
+
+def attach_files(source_files)
+  source_files = source_files
+    .select { |file| File.exist?(file) }
+    .map    { |file| File.file?(file) ? file : Dir["#{file}/**/*"] }
+    .flatten
+
+  sources = source_files.map do |file|
+    destname  = "#{uniq_prefix}#{File.extname(file)}"
+    page_dest = "#{pages}/images/#{destname}"
+    FileUtils.cp(file, "#{raw}/images/#{destname}")
+    FileUtils.cp(file, page_dest)
+    "![image](#{page_dest})"
+  end.join("\n")
+
+  system "echo \"#{sources}\" | pbcopy"
+end
+
 option = args_options.first
 
 case option
+when "-i"
+  attach_files(args_values)
 when "-g"
   grep
 when "-n"  
