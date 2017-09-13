@@ -279,9 +279,14 @@ def target_file(input, files)
   files[file_index]
 end
 
+def mutual_link(files)
+end
+
 def main_op(input, files, prev_files, args)
   if /^[c\s]+/ =~ input
     c(input, files)
+  elsif /^[+\s]+/ =~ input # former pb
+    
   elsif /^[l\s]+/ =~ input
     enlist_links(target_file(input, files))
   elsif /^[g\s]+/ =~ input
@@ -362,6 +367,8 @@ option = args_options.first
 case option
 when "-i"
   attach_files(args_values)
+when "-u"  
+  save_and_push_into_git_repository
 when "-g"
   grep
 when "-n"  
