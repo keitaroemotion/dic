@@ -109,7 +109,7 @@ def match?(text, args = nil)
   regex =~ text && dont_have(text)
 end
 
-def ask_input(msg = "[,{@}pa/vwu]> ")
+def ask_input(msg = "[,{@}pna/vwu]> ")
   print msg
   $stdin.gets.chomp
 end
@@ -199,7 +199,7 @@ def update_git_repository
   copy_from_raw_to_pages
 
   files_only(files_page_all).each   { |file| convert_page(file) }
-  system ("cd #{root}; git diff #{root}") 
+  system ("cd #{root}; git --no-pager diff #{root}") 
   abort if ask_input("ok?[Y/n]").downcase == "n"
 
   save_and_push_into_git_repository
@@ -274,8 +274,14 @@ def main_op(input, files, prev_files, args)
     files = [files[input.size - 1]]
   elsif /^\w+$/ =~ input
     args = input.split(" ")
+  elsif input.include?("n ")  
+    make_new_article(input[2..-1])
   end 
   [files, prev_files, args]
+end
+
+def make_new_article(args)
+  system "vim #{raw}/" + args.join("_") + ".md"
 end
 
 def enlist(files, prev_files, args)
@@ -294,6 +300,8 @@ option = args_options.first
 case option
 when "-g"
   grep
+when "-n"  
+  make_new_article(args_values) 
 else
   enlist(md_files_raw_all, md_files_raw_all, nil)
 end
