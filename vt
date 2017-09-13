@@ -206,10 +206,8 @@ def update_git_repository
 end
 
 def open_url(input, files)
-  size = input.strip.size
-  size = 0 unless size < files.size
   url = config["url"]
-          .gsub("$", files[size - 1])
+          .gsub("$", target_file(input, files))
           .gsub(raw, "")
           .gsub("md.md", "md")
   system "open #{url}"
@@ -243,13 +241,28 @@ def enlist_links(file, links = [])
 end
 
 #
-# XXX add [pb] function
+# XXX add function
+# XXX image addition [bulk]
+# XXX chapter display
 #
+
+def chapters(file)
+  file_read_lines
+    .select { |line| /^[#]+/ =~ line }
+    .map    { |line| line.gsub("#", " ") }
+end
+
+def target_file(input, files)
+  file_index = input.strip.size - 1
+  file_index = 0 unless file_index < files.size
+  files[file_index]
+end
+
 def main_op(input, files, prev_files, args)
-  if /^[l\s]+/ =~ input
-    file_index = input.strip.size
-    file_index = 0 unless file_index < files.size
-    enlist_links(files[file_index - 1])
+  if /^[c\s]+/ =~ input
+    chapters 
+  elsif /^[l\s]+/ =~ input
+    enlist_links(target_file(input, files))
   elsif /^[g\s]+/ =~ input
     files = grep(input[1..-1].strip.split(" ")); args = []
   elsif /^[u\s]+$/ =~ input
