@@ -248,7 +248,7 @@ end
 def chapters(file)
   file_read_lines(file)
     .select { |line| /^[#]+/ =~ line }
-    .map    { |line| line.gsub("#", " ") }
+    .map    { |line| line.gsub("#", "  ") }
 end
 
 def read_chapter(file, title)
