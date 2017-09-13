@@ -243,13 +243,35 @@ end
 #
 # XXX add function
 # XXX image addition [bulk]
-# XXX chapter display
 #
 
 def chapters(file)
-  file_read_lines
+  file_read_lines(file)
     .select { |line| /^[#]+/ =~ line }
     .map    { |line| line.gsub("#", " ") }
+end
+
+def read_chapter(file, title)
+  flag = 0
+  file_read_lines(file).each do |line|
+    if flag == 1
+      return if /^[#]+/ =~ line
+      puts line.magenta
+    end
+    flag = 1 if line.include?(title.strip)
+  end
+end
+
+def c(input, files)
+  puts
+  file = target_file(input, files)
+  _chapters = chapters(file)
+  _chapters.each_with_index do |chapter, i|
+    puts "#{i}: #{chapter.green}"
+  end
+  puts
+  input = ask_input("[chapter{@}]: ").downcase.to_i
+  read_chapter(file,  _chapters[input])
 end
 
 def target_file(input, files)
@@ -260,7 +282,7 @@ end
 
 def main_op(input, files, prev_files, args)
   if /^[c\s]+/ =~ input
-    chapters 
+    c(input, files)
   elsif /^[l\s]+/ =~ input
     enlist_links(target_file(input, files))
   elsif /^[g\s]+/ =~ input
