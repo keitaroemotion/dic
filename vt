@@ -119,9 +119,13 @@ def get_files(files)
   files.size == 0 ? md_files_raw_all : files
 end
 
+def get_one(files, size)
+  size = 1 unless size < files.size
+  files[size - 1]
+end
+
 def vim(files, size)
-  size = 0 unless size < files.size
-  system "vim #{files[size - 1]}"
+  system "vim #{get_one(files, size)}"
 end
 
 def config
@@ -279,9 +283,6 @@ def target_file(input, files)
   files[file_index]
 end
 
-def mutual_link(files)
-end
-
 def main_op(input, files, prev_files, args)
   if /^[c\s]+/ =~ input
     c(input, files)
@@ -311,6 +312,10 @@ def main_op(input, files, prev_files, args)
     files = [files[input.to_i - 1]]
   elsif /^[\,\s]+$/ =~ input 
     files = [files[input.size - 1]]
+  elsif /^y[\s]*/ =~ input
+    files.each do |file|
+      mutual_link(file, input.gsub("y", "").strip.split(" "))
+    end  
   elsif /^\w+$/ =~ input
     args = input.split(" ")
   elsif input.include?("n ")  
@@ -360,6 +365,65 @@ def attach_files(source_files)
   end.join("\n")
 
   system "echo \"#{sources}\" | pbcopy"
+end
+
+def disp_files(files)
+  files.each_with_index { |c, i| puts "[#{i + 1}] #{base_name(c)}" }
+end
+
+def files_match_pattern(pattern)
+  md_files_raw_all.select { |article|
+    pattern =~ article  
+  }
+end
+
+def regex_args_stdin_split_with_space
+  print "?/ > "
+  input = $stdin.gets.chomp
+  abort if quit?(input)
+  args = input.split(" ")
+  args.size > 0 ? regex(args) : /^.*$/
+end
+
+def number?(value)
+  /^\d+$/ =~ value 
+end
+
+def quit?(value)
+  /^[q\s]+$/ =~ value
+end
+
+def insert_link(file1, file2)
+  f = File.open(file2, "a")
+  base = base_name(file1)
+  f.puts "- [#{base}](#{base}.md)"  
+  f.close
+end
+
+def mutual_link(your_current_file, args = [])
+  files = files_match_pattern(
+            args.size > 0 ? regex(args) : regex_args_stdin_split_with_space
+          )
+  files.delete(your_current_file)
+          
+  disp_files(files)
+
+  if files.size == 0
+    puts "file not found".red
+      mutual_link(your_current_file, [])
+  else
+    print "{@}> "
+    input = $stdin.gets.chomp
+    if number?(input)
+      file = get_one(files, input.to_i)
+      insert_link(file, your_current_file)
+      insert_link(your_current_file, file)
+      puts "\n[added!]\n".green
+    elsif quit?(input) 
+    else
+      mutual_link(your_current_file, input.split(" "))
+    end
+  end  
 end
 
 option = args_options.first
