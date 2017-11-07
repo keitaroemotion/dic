@@ -1,4 +1,8 @@
 class Args
+  #
+  # SRP ... handles incoming argument and its sorting
+  #
+
   def initialize(args)
     @args = args
   end
