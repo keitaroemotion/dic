@@ -3,6 +3,7 @@
 require "colorize"
 require "fileutils"
 require "./app/lib/location.rb"
+require "./app/lib/wiki.rb"
 
 class Main
   attr_reader :option
@@ -10,20 +11,30 @@ class Main
   def initialize(args)
     @args     = args
     @location = Location.new
+    @wiki     = Wiki.new(@location)
     @option   = args_options.first
+    @original_articles  = @wiki.original_articles
+    @formatted_articles = @wiki.formatted_articles
   end
+
+  def execute
+    case @option
+    when "-i"
+      attach_files(args_values)
+    when "-u"  
+      save_and_push_into_git_repository
+    when "-g"
+      grep
+    when "-n"  
+      make_new_article(args_values) 
+    else
+      enlist(@original_articles, @formatted_articles, nil)
+    end
+  end    
 
   def dont_have(text)
     return true if args_negations.size == 0
     args_negations.select {|neg| text.include?(neg) }.size == 0
-  end
-
-  def md_files_raw_all
-    files_raw_all.select { |file| /\.md/ =~ file }
-  end
-
-  def md_files_page_all
-    files_page_all.select { |file| /\.md/ =~ file }
   end
 
   def text_matches_pattern?(file, regex)
@@ -67,14 +78,6 @@ class Main
     ARGV.select{|a| /^[^\-\^]/ =~ a }
   end
 
-  def files_raw_all
-    Dir["#{@location.raw}/*"]
-  end
-
-  def files_page_all
-    Dir["#{@location.pages}/*"]
-  end
-
   def file_read(file)
     File.read(file) 
   end
@@ -110,7 +113,7 @@ class Main
   end
 
   def get_files(files)
-    files.size == 0 ? md_files_raw_all : files
+    files.size == 0 ? @original_articles : files
   end
 
   def get_one(files, size)
@@ -421,17 +424,6 @@ class Main
   end
 end
 
-main = Main.new(ARGV)
+Main.new(ARGV).execute
 
-case main.option
-when "-i"
-  main.attach_files(main.args_values)
-when "-u"  
-  main.save_and_push_into_git_repository
-when "-g"
-  main.grep
-when "-n"  
-  main.make_new_article(main.args_values) 
-else
-  main.enlist(main.md_files_raw_all, main.md_files_raw_all, nil)
-end
+
