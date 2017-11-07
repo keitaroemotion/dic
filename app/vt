@@ -4,15 +4,16 @@ require "colorize"
 require "fileutils"
 require "./app/lib/location.rb"
 require "./app/lib/wiki.rb"
+require "./app/lib/args.rb"
 
 class Main
   attr_reader :option
 
   def initialize(args)
-    @args     = args
+    @args     = Args.new(args)
     @location = Location.new
     @wiki     = Wiki.new(@location)
-    @option   = args_options.first
+    @option   = @args.options.first
     @original_articles  = @wiki.original_articles
     @formatted_articles = @wiki.formatted_articles
   end
@@ -20,21 +21,21 @@ class Main
   def execute
     case @option
     when "-i"
-      attach_files(args_values)
+      attach_files(@args.values)
     when "-u"  
       save_and_push_into_git_repository
     when "-g"
       grep
     when "-n"  
-      make_new_article(args_values) 
+      make_new_article(@args.values) 
     else
       enlist(@original_articles, @formatted_articles, nil)
     end
   end    
 
   def dont_have(text)
-    return true if args_negations.size == 0
-    args_negations.select {|neg| text.include?(neg) }.size == 0
+    return true if @args.negations.size == 0
+    @args.negations.select {|neg| text.include?(neg) }.size == 0
   end
 
   def text_matches_pattern?(file, regex)
@@ -48,12 +49,12 @@ class Main
   def show_match_details(file, regex)
     puts "\n[file] " + base_name(file) 
     file_read_lines(file).each do |line|
-      !(regex =~ line) || puts("... #{paint(line, args_values)} ...\n")
+      !(regex =~ line) || puts("... #{paint(line, @args.values)} ...\n")
     end  
   end
 
   def regex(args = nil)
-    Regexp.new((args || args_values).join(".+"))
+    Regexp.new((args || @args.values).join(".+"))
   end
 
   def grep(args = nil)
@@ -66,18 +67,6 @@ class Main
     files
   end
 
-  def args_negations
-    ARGV.select{|a| /^[\^]/ =~ a }.map{|a| a[1..-1]}
-  end
-
-  def args_options
-    ARGV.select{|a| /^\-[^\^]+$/ =~ a }
-  end
-
-  def args_values
-    ARGV.select{|a| /^[^\-\^]/ =~ a }
-  end
-
   def file_read(file)
     File.read(file) 
   end
@@ -87,7 +76,7 @@ class Main
   end
 
   def paint(text, key_words = nil)
-    (key_words || args_values).each do |key_word|
+    (key_words || @args.values).each do |key_word|
       text = text.gsub(key_word, key_word.green)
     end
     text
