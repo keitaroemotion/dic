@@ -110,7 +110,7 @@ def match?(text, args = nil)
   regex =~ text && dont_have(text)
 end
 
-def ask_input(msg = "[,{@}pna/vwu]> ")
+def ask_input(msg = "[,{@}pyna/vwu]> ")
   print msg
   $stdin.gets.chomp
 end
