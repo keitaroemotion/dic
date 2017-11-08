@@ -5,6 +5,8 @@ require "fileutils"
 require "./app/lib/location.rb"
 require "./app/lib/wiki.rb"
 require "./app/lib/args.rb"
+require "./app/lib/resource/base.rb"
+require "./app/lib/resource/image.rb"
 
 class Main
   attr_reader :option
@@ -13,6 +15,7 @@ class Main
     @args     = Args.new(args)
     @location = Location.new
     @wiki     = Wiki.new(@location)
+    @resource = Resource::Base.new(resources: @args.values)
     @option   = @args.options.first
     @original_articles  = @wiki.original_articles
     @formatted_articles = @wiki.formatted_articles
@@ -21,7 +24,7 @@ class Main
   def execute
     case @option
     when "-i"
-      attach_files(@args.values)
+      @resource.attach
     when "-u"  
       save_and_push_into_git_repository
     when "-g"
@@ -304,32 +307,8 @@ class Main
     enlist(files, prev_files, args)
   end
 
-  def uniq_prefix
-    sleep 1
-    t   = Time.now
-    sec = t.to_s.gsub(/[\+\:\-\s]/, "")
-    "#{t.year}#{t.month}#{t.day}#{sec}"
-  end
-
   def escape(text)
     text.gsub(" ", "\\ ")
-  end
-
-  def attach_files(source_files)
-    source_files = source_files
-      .select { |file| File.exist?(file) }
-      .map    { |file| File.file?(file) ? file : Dir["#{file}/**/*"] }
-      .flatten
-
-    sources = source_files.map do |file|
-      destname  = "#{uniq_prefix}#{File.extname(file)}"
-      page_dest = "#{pages}/images/#{destname}"
-      FileUtils.cp(file, "#{raw}/images/#{destname}")
-      FileUtils.cp(file, page_dest)
-      "![image](#{page_dest})"
-    end.join("\n")
-
-    system "echo \"#{sources}\" | pbcopy"
   end
 
   def disp_files(files)

@@ -16,15 +16,29 @@ class Location
   end
 
   def etc
-    File.join(@root, "etc")
+    File.join(@root, "etc", @application_name)
+  end
+
+  #
+  # XXX test
+  #
+  def raw_images
+    File.join(raw, "images")
+  end
+
+  #
+  # XXX test
+  #
+  def pages_images
+    File.join(pages, "images")
   end
 
   def raw
-    File.join(@root, "raws")
+    File.join(etc, "raw")
   end
 
   def pages
-    File.join(@root, "pages")
+    File.join(etc, "pages")
   end
 
   private

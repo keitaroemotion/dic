@@ -13,7 +13,7 @@ class WikiTest < Minitest::Test
   #
 
   def test_original_articles
-    assert_equal ["./app/raws/apple.md"], @wiki.original_articles
+    assert_equal ["./app/raw/apple.md"], @wiki.original_articles
   end
 
   def test_formatted_articles
