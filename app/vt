@@ -36,7 +36,7 @@ class Main
     when "-u"  
       @wiki.save
     when "-g"
-      grep
+      Wiki.new.grep
     when "-n"  
       @wiki.create(@args.values) 
     else
@@ -45,28 +45,10 @@ class Main
   end    
 
   def text_matches_pattern?(file, regex)
-    match?(file_read(file), regex)
+    match?(Wiki.read(file), regex)
   end
 
-  def grep(args = nil)
-    files = md_files_raw_all
-      .select { |file| text_matches_pattern?(file, _regex) }
-    files.each { |file| Regex.new(args).list_matches(file)   }
-
-    files
-  end
-
-  def paint(text, key_words = nil)
-    (key_words || @args.values).each do |key_word|
-      text = text.gsub(key_word, key_word.green)
-    end
-    text
-  end
-
-  def get_files(files)
-    files.size == 0 ? @original_articles : files
-  end
-
+    
   def config
     confs = File.open(@location.config, "r").map do |line|
       line.split(" ")
@@ -85,7 +67,8 @@ class Main
     elsif /^[l\s]+/ =~ input
       URL.new(files).show
     elsif /^[g\s]+/ =~ input
-      files = grep(input[1..-1].strip.split(" ")); args = []
+      files = Wiki.new(args: input[1..-1]).grep
+      args = []
     elsif /^[u\s]+$/ =~ input
       update_git_repository
     elsif /^[w\s]+$/ =~ input
@@ -122,25 +105,11 @@ class Main
   # XXX needs to be refactored later
   # 
   def enlist(files, prev_files, args)
-    files = get_files(files).select { |file| match?(file, args) }
-    files.each_with_index { |file, i|
-      print "[#{i+1}] "
-      puts paint(base_name(file), args)
-    }
+    files = files.size == 0 ? @original_articles : files
+    files = files.select { |file| match?(file, args) }
+    Terminal.new(message: File.basename(file), key_words: args).paint.puts.list(files)
     files, prev_files, args = main_op(files, prev_files, args)
     enlist(files, prev_files, args)
-  end
-
-  def escape(text)
-    text.gsub(" ", "\\ ")
-  end
-
-  def number?(value)
-    /^\d+$/ =~ value 
-  end
-
-  def quit?(value)
-    /^[q\s]+$/ =~ value
   end
 end
 

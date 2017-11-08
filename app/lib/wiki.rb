@@ -5,9 +5,13 @@ class Wiki
   #
   # SRP ... all wiki files/contents are `encapsulated` into a object `wiki`
   #
-  def initialize(location = Location.new)
+  def initialize(location = Location.new, args: nil, file: nil)
     @location           = location
     @editor             = "vim"
+    @file               = file
+    @args               = args
+    @args               = args.strip.split(" ") if args.class == String
+    @regex              = Regex.new(@args)
     @original_articles  = articles(@location.raw)
     @formatted_articles = articles(@location.pages)
   end
@@ -52,10 +56,22 @@ class Wiki
     system "#{@editor} #{files[size - 1]}"
   end
 
-  def self.get(input, files)
-    file_index = input.strip.size - 1
-    file_index = 0 unless file_index < files.size
-    files[file_index]
+  def grep
+    original_articles
+      .select { |file| @regex.match?(read(file)) }
+      .each   { |file| list_matches(file) }
+  end
+
+  class << self
+    def get(input, files)
+      file_index = input.strip.size - 1
+      file_index = 0 unless file_index < files.size
+      files[file_index]
+    end  
+  
+    def read(file)
+      File.read(file).split("\n") 
+    end
   end  
 
   private
@@ -88,6 +104,15 @@ class Wiki
       "cd #{@location.root}",
       "cp -r #{@location.raw}/* #{@location.pages}",
     ].join(";"))
+  end
+
+  def list_matches(file)
+    puts "\n[file] " + file.gsub("#{@location.raw}/", "").gsub(".md", "")
+    Terminal
+      .new(interactive: false, key_words: Argument.new.values)
+      .list(read(file).select{ |line| @regex.match?(line) })
+      .paint
+      .puts
   end
 
   def overwrite(file, content)
