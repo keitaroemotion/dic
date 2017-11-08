@@ -26,11 +26,11 @@ class Main
     when "-i"
       @resource.attach
     when "-u"  
-      save_and_push_into_git_repository
+      @wiki.save
     when "-g"
       grep
     when "-n"  
-      make_new_article(@args.values) 
+      @wiki.create(@args.values) 
     else
       enlist(@original_articles, @formatted_articles, nil)
     end
@@ -70,14 +70,6 @@ class Main
     files
   end
 
-  def file_read(file)
-    File.read(file) 
-  end
-
-  def file_read_lines(file)
-    File.read(file).split("\n") 
-  end
-
   def paint(text, key_words = nil)
     (key_words || @args.values).each do |key_word|
       text = text.gsub(key_word, key_word.green)
@@ -108,74 +100,11 @@ class Main
     files.size == 0 ? @original_articles : files
   end
 
-  def get_one(files, size)
-    size = 1 unless size < files.size
-    files[size - 1]
-  end
-
-  def vim(files, size)
-    system "vim #{get_one(files, size)}"
-  end
-
   def config
     confs = File.open(@location.config, "r").map do |line|
       line.split(" ")
     end.flatten
     Hash[*confs]
-  end
-
-  def file_overwrite(file, content)
-    f = File.open(File.join(pages, File.basename(file)), "w")
-    f.puts content
-    f.close
-  end
-
-  def convert_raw(file)
-    content = file_read(file)
-    content
-      .gsub("#{pages}/", "")
-      .gsub("#{raw}/", "")
-      .gsub("#{root}/", "")
-    file_overwrite(file, content)    
-  end
-
-  def convert_page(file)
-    content = file_read_lines(file).map { |line|
-      image_regex =~ line ? embedded_image_link(line) : line
-    }
-    file_overwrite(file, content)
-  end
-
-  def save_and_push_into_git_repository
-    system ([
-      "cd #{root}",
-      "git add #{root}",
-      "git commit -m \"page updated\"",
-      "git pull origin master",
-      "git push origin master",
-    ].join(";"))
-  end
-
-  def copy_from_raw_to_pages
-    system ([
-      "cd #{root}",
-      "cp -r #{raw}/* #{pages}",
-    ].join(";"))
-  end
-
-  def files_only(files)
-    files.select { |file| File.file?(file) }
-  end
-
-  def update_git_repository
-    files_only(files_raw_all).each { |file| convert_raw(file) }
-    copy_from_raw_to_pages
-
-    files_only(files_page_all).each   { |file| convert_page(file) }
-    system ("cd #{root}; git --no-pager diff #{root}") 
-    abort if ask_input("ok?[Y/n]").downcase == "n"
-
-    save_and_push_into_git_repository
   end
 
   def open_url(input, files)
@@ -269,9 +198,9 @@ class Main
     elsif /^[\/]/ =~ input
       files = []; args  = input[1..-1].split(" ")
     elsif /^[v]+\s*$/ =~ input
-      vim(files, input.strip.size)
+      @wiki.edit(files, input.strip.size)
     elsif /^[v]+\s*\d+$/ =~ input
-      vim(files, input.gsub("v", "").strip.to_i)
+      @wiki.edit(files, input.gsub("v", "").strip.to_i)
     elsif /^[a\s]+$/ =~ input
       files = []; args  = []
     elsif /^[p\s]+$/ =~ input  
@@ -287,13 +216,9 @@ class Main
     elsif /^\w+$/ =~ input
       args = input.split(" ")
     elsif input.include?("n ")  
-      make_new_article(input[2..-1])
+      @wiki.create(input[2..-1])
     end 
     [files, prev_files, args]
-  end
-
-  def make_new_article(args)
-    system "vim #{raw}/" + args.join("_") + ".md"
   end
 
   def enlist(files, prev_files, args)
@@ -359,7 +284,8 @@ class Main
       print "{@}> "
       input = $stdin.gets.chomp
       if number?(input)
-        file = get_one(files, input.to_i)
+        size = 1 unless size < files.size
+        file = files[size - 1]
         insert_link(file, your_current_file)
         insert_link(your_current_file, file)
         puts "\n[added!]\n".green
