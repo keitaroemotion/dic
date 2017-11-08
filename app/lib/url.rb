@@ -1,5 +1,9 @@
 require "./app/lib/terminal.rb"
 
+#
+# little bit spaghetti still since there are several methods
+# just brought from main boiler plate and not yet refactored
+# 
 class URL
   def initialize(files, input = "0")
     @file = files.class == Array ? Wiki.get(input, files) : files
