@@ -2,6 +2,11 @@ module Resource
   class Base
     #
     # Polymorphism: the following methods are common among all child resources
+    # DIP ... Dependency Inversion Principle
+    #         While child class rely on this Base class#attach,
+    #         Base class itself NEVER refer to any methods or variables
+    #         from any child nodes, ex. Image
+    #         Since Resource#Base is abstract.
     #
     def initialize(line: "", resources: nil)
       @resource_files = resource_files(resources)
