@@ -115,31 +115,10 @@ class Main
   end
 
   def config
-    confs = File.open("#{etc}/vol/.config", "r").map do |line|
+    confs = File.open(@location.config, "r").map do |line|
       line.split(" ")
     end.flatten
     Hash[*confs]
-  end
-
-  def image_regex
-    /images\/.*(\.jpg|\.png|\.gif|\.jpeg|\.JPG)*[^\)]+/
-  end
-
-  def image(line)
-    image_regex
-      .match(line)
-      .to_s
-      .gsub(")", "")
-      .split(" ")
-  end
-
-  def height(post)
-    "height=#{post}"
-  end
-
-  def embedded_image_link(line)
-    pre, post = image(line)
-    pre ? "<img src=#{pre} #{/^\d*$/ =~ post ? height(post) : ""}/>" : line
   end
 
   def file_overwrite(file, content)

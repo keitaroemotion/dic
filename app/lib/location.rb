@@ -11,6 +11,10 @@ class Location
     @root             = root || "/usr/local"
   end
 
+  def config
+    File.join(etc, @application_name, ".config")
+  end
+
   def etc
     File.join(@root, "etc")
   end
