@@ -60,43 +60,32 @@ class URL
 
   #
   # XXX need refactor later
+  # XXX the function "mutual_url" is missing
   #
-  def mutually_insert(your_current_file, args = [])
-    files = grep_list(
-              args.size > 0 ? regex(args) : regex_args_stdin_split_with_space
-            )
-    files.delete(your_current_file)
-    files.each_with_index { |c, i| puts "[#{i + 1}] #{File.basename(c)}" }
+  def mutually_insert(args = [])
+    files = grep_list
+    files.delete(@file)
+    Terminal.new.list_basename(files)
 
     if files.size == 0
       puts "file not found".red
-        mutual_url(your_current_file, [])
+      mutual_url(@file, [])
     else
-      print "{@}> "
-      input = $stdin.gets.chomp
-      if number?(input)
-        size = 1 unless size < files.size
-        file = files[size - 1]
-        insert_url(file, your_current_file)
-        insert_url(your_current_file, file)
+      input = Terminal.new("{@}> ", quit: false).string
+      if /^\d+$/ =~ input
+        file = files[(size < files.size ? size : 1) - 1]
+        insert_url(file, @file); insert_url(@file, file)
         puts "\n[added!]\n".green
-      elsif quit?(input) 
+      elsif /^[q\s]+$/ =~ input
+       # do nothing
       else
-        mutual_url(your_current_file, input.split(" "))
+        mutual_url(@file, input.split(" "))
       end
     end  
   end
 
   def grep_list
-    @wiki.original_articles.select { |article| body =~ article }
-  end
-
-  def regex_args_stdin_split_with_space
-    print "?/ > "
-    input = $stdin.gets.chomp
-    abort if quit?(input)
-    args = input.split(" ")
-    args.size > 0 ? regex(args) : /^.*$/
+    @wiki.original_articles.select { |article| Regex.new.match?(article) }
   end
 
   def url?(line)

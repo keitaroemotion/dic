@@ -23,7 +23,7 @@ class Regex
   end
 
   def combine
-    @args : Regexp.new(@args.join(".+"))
+    @args.empty? ? /.+/ : Regexp.new(@args.join(".+"))
   end
 
   def regex?

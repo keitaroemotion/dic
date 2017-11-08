@@ -1,9 +1,20 @@
 class Terminal
-  def initialize(message: "> ", interactive: true, key_words: [])
+  attr_reader :input, :output
+ 
+  def initialize(message: "> ", interactive: true, key_words: [], quit: true)
     @input     = ""
     @output    = message.join
     @key_words = key_words
+    @quit      = quit
     interactive && ask_input 
+  end
+
+  def input_split
+    @input.split(" ")
+  end
+
+  def list_basename(files)
+    files.each_with_index { |c, i| puts "[#{i + 1}] #{File.basename(c)}" }
   end
 
   def list(list) 
@@ -29,7 +40,7 @@ class Terminal
   def ask_input
     print message
     @input = $stdin.gets.chomp
-    abort if @input == "q".downcase.strip
+    abort if @input == "q".downcase.strip && @quit
   end
 
   def string
