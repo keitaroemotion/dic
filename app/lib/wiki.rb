@@ -50,6 +50,12 @@ class Wiki
     system "#{@editor} #{files[size - 1]}"
   end
 
+  def self.get(input, files)
+    file_index = input.strip.size - 1
+    file_index = 0 unless file_index < files.size
+    files[file_index]
+  end  
+
   private
 
   #

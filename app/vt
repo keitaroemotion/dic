@@ -7,7 +7,15 @@ require "./app/lib/wiki.rb"
 require "./app/lib/args.rb"
 require "./app/lib/resource/base.rb"
 require "./app/lib/resource/image.rb"
+require "./app/lib/url.rb"
 
+#
+# Interface Segregatin Principle: 
+#  this is the class which used to be boilerplate and going to
+#  be refactored from. the classes under app/lib/**/* are 
+#  ENCAPSULATED classes for the ISP realization.
+#  it is on the way.
+#
 class Main
   attr_reader :option
 
@@ -36,36 +44,18 @@ class Main
     end
   end    
 
-  def dont_have(text)
-    return true if @args.negations.size == 0
-    @args.negations.select {|neg| text.include?(neg) }.size == 0
-  end
-
   def text_matches_pattern?(file, regex)
     match?(file_read(file), regex)
   end
 
   def base_name(file)
-    file.gsub("#{raw}/", "").gsub(".md", "")
-  end
-
-  def show_match_details(file, regex)
-    puts "\n[file] " + base_name(file) 
-    file_read_lines(file).each do |line|
-      !(regex =~ line) || puts("... #{paint(line, @args.values)} ...\n")
-    end  
-  end
-
-  def regex(args = nil)
-    Regexp.new((args || @args.values).join(".+"))
+    file.gsub("#{@location.raw}/", "").gsub(".md", "")
   end
 
   def grep(args = nil)
-    _regex = regex(args)
-    puts "regex: #{_regex}".yellow
     files = md_files_raw_all
       .select { |file| text_matches_pattern?(file, _regex) }
-    files.each { |file| show_match_details(file, _regex)   }
+    files.each { |file| Regex.new(args).list_matches(file)   }
 
     files
   end
@@ -77,25 +67,6 @@ class Main
     text
   end
 
-  def link?(line)
-    /^[\s\-]*\[[^\[\]]*\]\([^\(\)]+\)/ =~ line || /http[s]*:\/\// =~ line
-  end
-
-  def links(file)
-    file_read_lines(file).select { |line| link?(line) }
-  end
-
-  def match?(text, args = nil)
-    args ||= regex
-    regex = (args.class == Array) ? regex(args) : args
-    regex =~ text && dont_have(text)
-  end
-
-  def ask_input(msg = "[,{@}pyna/vwu]> ")
-    print msg
-    $stdin.gets.chomp
-  end
-
   def get_files(files)
     files.size == 0 ? @original_articles : files
   end
@@ -105,41 +76,6 @@ class Main
       line.split(" ")
     end.flatten
     Hash[*confs]
-  end
-
-  def open_url(input, files)
-    url = config["url"]
-            .gsub("$", target_file(input, files))
-            .gsub(raw, "")
-            .gsub("md.md", "md")
-    system "open #{url}"
-  end
-
-  def enlist_links(file, links = [])
-    return if file.nil?
-    if links.size == 0
-      links = file_read_lines(file)
-        .select { |line| link?(line) }
-        .map    { |line|
-          /(\/usr\/local\/|http)[^\s\)\(]+/.match(line.strip).to_s.split(" ").first 
-        }
-        .compact
-        .uniq
-    end    
-    puts "#{File.basename(file)}\n".cyan
-    links.each_with_index { |l, i| puts "[#{i + 1}] #{l}" }
-    input = ask_input(",{@}p>").strip
-    abort if input == "q".downcase.strip
-
-    if /^[\,\s]+$/ =~ input
-      puts "#{input.size} < #{links.size}".magenta
-      input = "," unless input.size - 1 < links.size
-      system "open #{links[input.size - 1]}"
-    elsif /^[p\s]+$/ =~ input  
-    else
-      r = regex(input.split(" "))
-      enlist_links(file, links.select{ |l| r =~ l } )    
-    end
   end
 
   #
@@ -164,7 +100,7 @@ class Main
 
   def c(input, files)
     puts
-    file = target_file(input, files)
+    file = URL.new(files, input).file
     _chapters = chapters(file)
     _chapters.each_with_index do |chapter, i|
       puts "#{i}: #{chapter.green}"
@@ -174,19 +110,13 @@ class Main
     read_chapter(file,  _chapters[input])
   end
 
-  def target_file(input, files)
-    file_index = input.strip.size - 1
-    file_index = 0 unless file_index < files.size
-    files[file_index]
-  end
-
   def main_op(input, files, prev_files, args)
     if /^[c\s]+/ =~ input
       c(input, files)
     elsif /^[+\s]+/ =~ input # former pb
       
     elsif /^[l\s]+/ =~ input
-      enlist_links(target_file(input, files))
+      URL.new(files).show
     elsif /^[g\s]+/ =~ input
       files = grep(input[1..-1].strip.split(" ")); args = []
     elsif /^[u\s]+$/ =~ input
@@ -228,7 +158,7 @@ class Main
       puts paint(base_name(file), args)
     }
 
-    files, prev_files, args = main_op(ask_input, files, prev_files, args)
+    files, prev_files, args = main_op(Terminal.ask_input, files, prev_files, args)
     enlist(files, prev_files, args)
   end
 
@@ -246,54 +176,12 @@ class Main
     }
   end
 
-  def regex_args_stdin_split_with_space
-    print "?/ > "
-    input = $stdin.gets.chomp
-    abort if quit?(input)
-    args = input.split(" ")
-    args.size > 0 ? regex(args) : /^.*$/
-  end
-
   def number?(value)
     /^\d+$/ =~ value 
   end
 
   def quit?(value)
     /^[q\s]+$/ =~ value
-  end
-
-  def insert_link(file1, file2)
-    f = File.open(file2, "a")
-    base = base_name(file1)
-    f.puts "- [#{base}](#{base}.md)"  
-    f.close
-  end
-
-  def mutual_link(your_current_file, args = [])
-    files = files_match_pattern(
-              args.size > 0 ? regex(args) : regex_args_stdin_split_with_space
-            )
-    files.delete(your_current_file)
-            
-    disp_files(files)
-
-    if files.size == 0
-      puts "file not found".red
-        mutual_link(your_current_file, [])
-    else
-      print "{@}> "
-      input = $stdin.gets.chomp
-      if number?(input)
-        size = 1 unless size < files.size
-        file = files[size - 1]
-        insert_link(file, your_current_file)
-        insert_link(your_current_file, file)
-        puts "\n[added!]\n".green
-      elsif quit?(input) 
-      else
-        mutual_link(your_current_file, input.split(" "))
-      end
-    end  
   end
 end
 
