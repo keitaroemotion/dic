@@ -43,11 +43,6 @@ class Main
       enlist(@original_articles, @formatted_articles, nil)
     end
   end    
-
-  def text_matches_pattern?(file, regex)
-    match?(Wiki.read(file), regex)
-  end
-
     
   def config
     confs = File.open(@location.config, "r").map do |line|
