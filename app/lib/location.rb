@@ -19,11 +19,19 @@ class Location
     File.join(@root, "etc", @application_name)
   end
 
+  def raw
+    File.join(etc, "raw")
+  end
+
   #
   # XXX test
   #
   def raw_images
     File.join(raw, "images")
+  end
+
+  def pages
+    File.join(etc, "pages")
   end
 
   #
@@ -32,18 +40,4 @@ class Location
   def pages_images
     File.join(pages, "images")
   end
-
-  def raw
-    File.join(etc, "raw")
-  end
-
-  def pages
-    File.join(etc, "pages")
-  end
-
-  private
-
-  #
-  # (O)open/closed principle
-  # 
 end

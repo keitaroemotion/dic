@@ -9,6 +9,16 @@ class Terminal
     interactive && ask_input 
   end
 
+  def ask_input
+    print message
+    @input = $stdin.gets.chomp
+    abort if @input == "q".downcase.strip && @quit
+  end
+
+  def digit
+    @input.downcase.to_i
+  end
+
   def input_split
     @input.split(" ")
   end
@@ -25,11 +35,6 @@ class Terminal
     self
   end  
 
-  def puts
-    puts @output
-    self
-  end
-
   def paint
     (@key_words || @args.values).each do |key_word|
       @output = @output.gsub(key_word, key_word.green)
@@ -37,17 +42,12 @@ class Terminal
     self
   end
 
-  def ask_input
-    print message
-    @input = $stdin.gets.chomp
-    abort if @input == "q".downcase.strip && @quit
+  def puts
+    puts @output
+    self
   end
 
   def string
     @input.strip
-  end
-
-  def digit
-    @input.downcase.to_i
   end
 end

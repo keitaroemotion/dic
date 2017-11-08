@@ -19,31 +19,6 @@ class Wiki
   #
   # XXX test
   #
-  def save
-    system ([
-      "cd #{@location.root}",
-      "git add #{@location.root}",
-      "git commit -m \"page updated\"",
-      "git pull origin master",
-      "git push origin master",
-    ].join(";"))
-  end
-
-  #
-  # XXX test
-  #
-  def update
-    @wiki.original_articles.each { |file| convert_raw(file) }
-    backup
-    @wiki.formatted_articles.each { |file| convert_page(file) }
-    system ("cd #{@root}; git --no-pager diff #{@location.root}") 
-    abort if ask_input("ok?[Y/n]").downcase == "n"
-    save
-  end
-
-  #
-  # XXX test
-  #
   def create(args)
     system "#{@editor} #{@location.raw}/#{args.join('_')}.md"
   end
@@ -66,13 +41,36 @@ class Wiki
     File.read(file).split("\n") 
   end
 
-  class << self
-    def get(input, files)
-      file_index = input.strip.size - 1
-      file_index = 0 unless file_index < files.size
-      files[file_index]
-    end  
+  #
+  # XXX test
+  #
+  def save
+    system ([
+      "cd #{@location.root}",
+      "git add #{@location.root}",
+      "git commit -m \"page updated\"",
+      "git pull origin master",
+      "git push origin master",
+    ].join(";"))
+  end
+
+  def self.get(input, files)
+    file_index = input.strip.size - 1
+    file_index = 0 unless file_index < files.size
+    files[file_index]
   end  
+
+  #
+  # XXX test
+  #
+  def update
+    @wiki.original_articles.each { |file| convert_raw(file) }
+    backup
+    @wiki.formatted_articles.each { |file| convert_page(file) }
+    system ("cd #{@root}; git --no-pager diff #{@location.root}") 
+    abort if ask_input("ok?[Y/n]").downcase == "n"
+    save
+  end
 
   private
 
@@ -86,6 +84,13 @@ class Wiki
       .select { |file| File.file?(file) && /\.md$/ =~ file }
   end
 
+  def backup
+    system ([
+      "cd #{@location.root}",
+      "cp -r #{@location.raw}/* #{@location.pages}",
+    ].join(";"))
+  end
+
   def convert_raw(file)
     content = read(file).join
     content.gsub!(/(#{@location.pages}|#{@location.raw}|#{@location.root})\//, "")
@@ -97,13 +102,6 @@ class Wiki
       image_regex =~ line ? embedded_image_link(line) : line
     }
     overwrite(file, content)
-  end
-
-  def backup
-    system ([
-      "cd #{@location.root}",
-      "cp -r #{@location.raw}/* #{@location.pages}",
-    ].join(";"))
   end
 
   def list_matches(file)

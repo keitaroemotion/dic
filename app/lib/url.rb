@@ -11,20 +11,20 @@ class URL
     @urls = []
   end
 
-  def open(input, files)
-    url = config["url"]
-            .gsub("$", @file)
-            .gsub(raw, "")
-            .gsub("md.md", "md")
-    system "open #{url}"
-  end
-
   def initiate_urls
     File.read(@file).split("\n")
       .select { |line| url?(line) }
       .map    { |line| filter(line.strip) }
       .compact
       .uniq
+  end
+
+  def open(input, files)
+    url = config["url"]
+            .gsub("$", @file)
+            .gsub(raw, "")
+            .gsub("md.md", "md")
+    system "open #{url}"
   end
 
   def show
@@ -46,16 +46,19 @@ class URL
 
   private 
 
-  def pick_url(input)
-    input = "," unless input.size - 1 < @urls.size
-    @urls[input.size - 1]
+  def filter(line)
+     /(\/usr\/local\/|http)[^\s\)\(]+/.match(line).to_s.split(" ").first 
+  end
+
+  def grep_list
+    @wiki.original_articles.select { |article| Regex.new.match?(article) }
   end
 
   def insert(file1, file2)
-    f = File.open(file2, "a")
-    base = base_name(file1)
-    f.puts "- [#{base}](#{base}.md)"  
-    f.close
+    File.open(file2, "a") do |f|
+      base = base_name(file1)
+      f.puts "- [#{base}](#{base}.md)"  
+    end  
   end
 
   #
@@ -84,8 +87,13 @@ class URL
     end  
   end
 
-  def grep_list
-    @wiki.original_articles.select { |article| Regex.new.match?(article) }
+  #
+  # XXX below methods must be renamed
+  # 
+
+  def pick_url(input)
+    input = "," unless input.size - 1 < @urls.size
+    @urls[input.size - 1]
   end
 
   def url?(line)
@@ -94,11 +102,5 @@ class URL
 
   def urls(file)
     File.read(file).split("\n").select { |line| url?(line) }
-  end
-
-  private
-
-  def filter(line)
-     /(\/usr\/local\/|http)[^\s\)\(]+/.match(line).to_s.split(" ").first 
   end
 end
