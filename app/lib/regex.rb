@@ -1,5 +1,6 @@
 class Regex
   def initialize(args = nil)
+    args = args.split(" ") if args.class == String
     @args = args || Args.new.values
   end
 

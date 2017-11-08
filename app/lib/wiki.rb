@@ -1,9 +1,11 @@
+require "./app/lib/location.rb"
+
 class Wiki
   attr_reader :original_articles, :formatted_articles
   #
   # SRP ... all wiki files/contents are `encapsulated` into a object `wiki`
   #
-  def initialize(location)
+  def initialize(location = Location.new)
     @location           = location
     @editor             = "vim"
     @original_articles  = articles(@location.raw)

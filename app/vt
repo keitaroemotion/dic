@@ -48,10 +48,6 @@ class Main
     match?(file_read(file), regex)
   end
 
-  def base_name(file)
-    file.gsub("#{@location.raw}/", "").gsub(".md", "")
-  end
-
   def grep(args = nil)
     files = md_files_raw_all
       .select { |file| text_matches_pattern?(file, _regex) }
@@ -79,42 +75,13 @@ class Main
   end
 
   #
-  # XXX add function
-  #
-  def chapters(file)
-    file_read_lines(file)
-      .select { |line| /^[#]+/ =~ line }
-      .map    { |line| line.gsub("#", "  ") }
-  end
-
-  def read_chapter(file, title)
-    flag = 0
-    file_read_lines(file).each do |line|
-      if flag == 1
-        return if /^[#]+/ =~ line
-        puts line.magenta
-      end
-      flag = 1 if line.include?(title.strip)
-    end
-  end
-
-  def c(input, files)
-    puts
-    file = URL.new(files, input).file
-    _chapters = chapters(file)
-    _chapters.each_with_index do |chapter, i|
-      puts "#{i}: #{chapter.green}"
-    end
-    puts
-    input = ask_input("[chapter{@}]: ").downcase.to_i
-    read_chapter(file,  _chapters[input])
-  end
-
-  def main_op(input, files, prev_files, args)
+  # XXX needs to be refactored later
+  # 
+  def main_op(files, prev_files, args)
+    input = Terminal.new.string
     if /^[c\s]+/ =~ input
-      c(input, files)
+      read_chapters(input, files)
     elsif /^[+\s]+/ =~ input # former pb
-      
     elsif /^[l\s]+/ =~ input
       URL.new(files).show
     elsif /^[g\s]+/ =~ input
@@ -151,29 +118,21 @@ class Main
     [files, prev_files, args]
   end
 
+  #
+  # XXX needs to be refactored later
+  # 
   def enlist(files, prev_files, args)
     files = get_files(files).select { |file| match?(file, args) }
     files.each_with_index { |file, i|
       print "[#{i+1}] "
       puts paint(base_name(file), args)
     }
-
-    files, prev_files, args = main_op(Terminal.ask_input, files, prev_files, args)
+    files, prev_files, args = main_op(files, prev_files, args)
     enlist(files, prev_files, args)
   end
 
   def escape(text)
     text.gsub(" ", "\\ ")
-  end
-
-  def disp_files(files)
-    files.each_with_index { |c, i| puts "[#{i + 1}] #{base_name(c)}" }
-  end
-
-  def files_match_pattern(pattern)
-    md_files_raw_all.select { |article|
-      pattern =~ article  
-    }
   end
 
   def number?(value)
