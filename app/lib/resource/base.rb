@@ -3,53 +3,42 @@ module Resource
     #
     # Polymorphism: the following methods are common among all child resources
     # DIP ... Dependency Inversion Principle
-    #         While child class rely on this Base class#attach,
+    #         While child class rely on this Base class#append,
     #         Base class itself NEVER refer to any methods or variables
     #         from any child nodes, ex. Image
     #         Since Resource#Base is abstract.
     #
-    def initialize(line: "", resources: nil)
+    def initialize(resources: [], location:)
       @resource_files = resource_files(resources)
-      @line      = line  
-      @location  = Location.new
+      @location       = location
+      @pages_files    = []
     end
 
-    def attach
+    def append_sys_command
       @resource_files.map do |file|
-        file_name = "#{uniq_prefix}#{File.extname(file)}"
-        FileUtils.cp(file, raw_file(file_name))
-        FileUtils.cp(file, pages_file(file_name))
+        copy(file, "#{Time.now.strftime("%s%6N")}#{File.extname(file)}")
       end
-      system "echo \"#{resource_string}\" | pbcopy"
+      "echo \"#{resource_string}\" | pbcopy"
     end
 
     private
 
-    def raw_file(file_name)
-      File.join(@location.raw_images, file_name)
-    end
-
-    def pages_file(file_name)
-      File.join(@location.pages_images, file_name)
+    def copy(file, file_name)
+      FileUtils.cp(file, File.join(@location.raw_images, file_name))
+      pages_file = File.join(@location.pages_images, file_name)
+      FileUtils.cp(file, pages_file)
+      @pages_files.push(pages_file)
     end
 
     def resource_files(resources)
       resources
-        .map    { |file| puts "absent: #{file}" unless File.exist?(file); file }
         .select { |file| File.exist?(file) }
         .map    { |file| File.file?(file) ? file : Dir["#{file}/**/*"] }
         .flatten
     end
 
     def resource_string
-      @resource_files.map { |file| "![image](#{pages_file(file)})" }.join("\n")
-    end
-
-    def uniq_prefix
-      sleep 1
-      t   = Time.now
-      sec = t.to_s.gsub(/[\+\:\-\s]/, "")
-      "#{t.year}#{t.month}#{t.day}#{sec}"
+      @pages_files.map { |file| "![image](#{file})" }.join("\n")
     end
   end
 end

@@ -32,7 +32,7 @@ class Main
   def execute
     case @option
     when "-i"
-      @resource.attach
+      @resource.append
     when "-u"  
       @wiki.save
     when "-g"
