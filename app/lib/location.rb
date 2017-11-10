@@ -3,6 +3,8 @@ class Location
   # (S)SRP        ... this class is responsible for the location of the app resources
   # Encapsulation ... This class is encapsulated as "location (of resources)" 
 
+  attr_reader :root
+
   def initialize(root: "/usr/local")
     @application_name = "vol"
     @root             = root

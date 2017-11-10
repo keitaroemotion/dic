@@ -14,15 +14,19 @@ class WikiTest < Minitest::Test
       FileUtils.touch(@pages_file)
       location = Location.new(root: "./test/source")
       args     = Args.new(["apple", "^banana", "fuji"])
-      @wiki    = Wiki.new(location: location, args: args, editor: nil)
+      @wiki    = Wiki.new(location: location, args: args, debug: true)
     end
 
     def test_create
-      assert_equal "{editing} #{@raw_file}", @wiki.create(["moo", "min", "dani"]) 
+      assert_equal "#{@raw_file}", @wiki.create(["moo", "min", "dani"]) 
     end
 
     def test_edit
-      assert_equal "{editing} #{@raw_file}", @wiki.edit([@raw_file], 1) 
+      assert_equal "#{@raw_file}", @wiki.edit([@raw_file], 1) 
+    end
+
+    def test_save
+      assert_equal "cd ./test/source;git add ./test/source;git commit -m \"page updated\";git pull origin master;git push origin master", @wiki.save
     end
 
     def test_original_articles

@@ -5,9 +5,9 @@ class Wiki
   #
   # SRP ... all wiki files/contents are `encapsulated` into a object `wiki`
   #
-  def initialize(location:, args: nil, file: nil, editor: "vim")
+  def initialize(location:, args: nil, file: nil, debug: false)
     @location           = location
-    @editor             = editor
+    @debug              = debug
     @file               = file
     @args               = args
     @args               = args.strip.split(" ") if args.class == String
@@ -38,7 +38,7 @@ class Wiki
   # XXX test
   #
   def save
-    system ([
+    sys_git ([
       "cd #{@location.root}",
       "git add #{@location.root}",
       "git commit -m \"page updated\"",
@@ -60,7 +60,7 @@ class Wiki
     @wiki.original_articles.each { |file| convert_raw(file) }
     backup
     @wiki.formatted_articles.each { |file| convert_page(file) }
-    system ("cd #{@root}; git --no-pager diff #{@location.root}") 
+    sys_git("cd #{@root}; git --no-pager diff #{@location.root}") 
     abort if ask_input("ok?[Y/n]").downcase == "n"
     save
   end
@@ -78,7 +78,7 @@ class Wiki
   end
 
   def backup
-    system ([
+    sys_git ([
       "cd #{@location.root}",
       "cp -r #{@location.raw}/* #{@location.pages}",
     ].join(";"))
@@ -112,11 +112,20 @@ class Wiki
     f.close
   end
 
-  def sys_edit(file)
-    if @editor
-      system "#{@editor} #{file.strip}"
+  def sys_git(commands)
+    if @debug 
+      commands
     else
-      return "{editing} #{file.strip}"
+      system "#{commands}"
+      system "echo \"#{commands}\" | pbcopy"
+    end  
+  end
+
+  def sys_edit(file)
+    if @debug
+      return "#{file.strip}"
+    else
+      system "vim #{file}"
     end
   end
 end
