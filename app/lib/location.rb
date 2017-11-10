@@ -3,16 +3,13 @@ class Location
   # (S)SRP        ... this class is responsible for the location of the app resources
   # Encapsulation ... This class is encapsulated as "location (of resources)" 
 
-  def initialize(root: nil)
-    #
-    # variable initialization
-    #
+  def initialize(root: "/usr/local")
     @application_name = "vol"
-    @root             = root || "/usr/local"
+    @root             = root
   end
 
   def config
-    File.join(etc, @application_name, ".config")
+    "#{etc}/.config"
   end
 
   def etc
@@ -20,24 +17,19 @@ class Location
   end
 
   def raw
-    File.join(etc, "raw")
+    "#{etc}/raw"
   end
 
-  #
-  # XXX test
-  #
   def raw_images
-    File.join(raw, "images")
+    "#{raw}/images"
   end
 
   def pages
-    File.join(etc, "pages")
+    "#{etc}/pages"
   end
 
-  #
-  # XXX test
-  #
   def pages_images
-    File.join(pages, "images")
+    "#{pages}/images"
   end
 end
+
