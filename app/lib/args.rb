@@ -4,7 +4,11 @@ class Args
   #
 
   def initialize(args)
-    @args = args
+    @args = args.class == String ? args.split(" ") : args
+  end
+
+  def match?(text)
+    positive_regex =~ text && negative_regex =~ text
   end
 
   def negations
@@ -17,5 +21,15 @@ class Args
 
   def values
     @args.select{|a| /^[^\-\^]/ =~ a }
+  end
+
+  private
+
+  def negative_regex
+    negations.empty? ? /^$/ : Regexp.new("^((?!#{negations.join(".+")}).)*$")
+  end
+
+  def positive_regex
+    values.empty? ? /.+/ : Regexp.new(values.join(".*"))
   end
 end

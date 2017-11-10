@@ -11,6 +11,16 @@ class ArgsTest < Minitest::Test
     @args = Args.new(["moo", "-i", "^apple", "orange"]) 
   end
 
+  def test_match?
+    assert @args.match?("mooorange")
+    assert @args.match?("moominorange")
+    assert @args.match?("moo orange pp")
+    refute @args.match?("moo orange apple")
+    refute @args.match?("moo apple orange")
+    refute @args.match?("apple moo orange")
+    refute @args.match?("orange moo")
+  end
+
   def test_negations
     assert_equal ["apple"], @args.negations
   end
