@@ -5,35 +5,28 @@ class Wiki
   #
   # SRP ... all wiki files/contents are `encapsulated` into a object `wiki`
   #
-  def initialize(location = Location.new, args: nil, file: nil)
+  def initialize(location:, args: nil, file: nil, editor: "vim")
     @location           = location
-    @editor             = "vim"
+    @editor             = editor
     @file               = file
     @args               = args
     @args               = args.strip.split(" ") if args.class == String
-    @regex              = Regex.new(@args)
     @original_articles  = articles(@location.raw)
     @formatted_articles = articles(@location.pages)
   end
 
-  #
-  # XXX test
-  #
   def create(args)
-    system "#{@editor} #{@location.raw}/#{args.join('_')}.md"
+    sys_edit("#{@location.raw}/#{args.join('_')}.md")
   end
 
-  #
-  # XXX test
-  # 
   def edit(files, size)
     size = 1 unless size < files.size
-    system "#{@editor} #{files[size - 1]}"
+    sys_edit("#{@editor} #{files[size - 1]}")
   end
 
   def grep
     original_articles
-      .select { |file| @regex.match?(read) }
+      .select { |file| @args.match?(read) }
       .each   { |file| list_matches(file) }
   end
 
@@ -117,5 +110,13 @@ class Wiki
     f = File.open(File.join(pages, File.basename(file)), "w")
     f.puts content
     f.close
+  end
+
+  def sys_edit(file)
+    if @editor
+      system "#{@editor} #{file.strip}"
+    else
+      return "{editing} #{file.strip}"
+    end
   end
 end
