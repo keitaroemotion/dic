@@ -1,20 +1,8 @@
 require "./app/lib/resource/base.rb"
 
 module Resource
-  #
-  # Inheritance ... Since the embedded resource on wiki markdown can be
-  #                 diverse, it is abstractly defined as Resource::Base
-  #
-  # Polymorphism .. Resouce::Base is abstractly defined, then
-  #                 it could be implemented into Image, Excel, PDF, etc..
-  #
   class Image < Resource::Base
-  #
-  # SRP ... handles image only
-  #
-  def initialize(line, resource: nil)
-    @prefix  = nil
-    @postfix = nil
+  def initialize(line, resources: [], location:)
     super
   end
 
