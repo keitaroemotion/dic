@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-ruby test/lib/util_test.rb
+ruby -I test test/lib/image_test.rb
